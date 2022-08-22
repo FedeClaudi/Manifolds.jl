@@ -1,7 +1,9 @@
 import Term.Style: apply_style
 using DomainSets
-import DomainSets: ×
+import DomainSets: ×, components
 
+
+identity(x) = x
 
 # ---------------------------------------------------------------------------- #
 #                                   MANIFOLD                                   #
@@ -9,11 +11,13 @@ import DomainSets: ×
 
 abstract type AbstractManifold end
 
-
 struct Manifold <: AbstractManifold 
     name::String
     domain::Domain
+    ϕ::Function  # map applied to points (e.g. for embedded mflds)
 end
+
+Manifold(name::String, domain::Domain) = Manifold(name, domain, identity)
 
 Base.string(m::AbstractManifold) = "Manifold: $(m.name)"
 Base.print(io::IO, m::AbstractManifold) = print(io, string(m))
@@ -28,8 +32,9 @@ _unit_domain = UnitInterval()
 R = Manifold("ℝ", _unit_domain)
 R2 = Manifold("ℝ²", _unit_domain × _unit_domain)
 R3 = Manifold("ℝ³", _unit_domain × _unit_domain × _unit_domain)
+largeR = Manifold("LargeR", ClosedInterval(-5, 5) × ClosedInterval(-5, 5))
 C = Manifold("Circle", _circle_domain)
-S = Manifold("Sphere", UnitSphere())  # TODO check domain works
+S = Manifold("Sphere", _circle_domain × ClosedInterval(0, π))  # TODO check domain works
 Cy = Manifold("Cylinder", _circle_domain × _unit_domain)
 T = Manifold("T ≃ C × C", _circle_domain × _circle_domain)
 
@@ -46,27 +51,81 @@ Base.rand(::UnitSphere, n::Int)::Matrix{Float64} = hcat(rand(n), rand(n)) * 2π
 
 # ---------------------------------- boundary ---------------------------------- #
 
+""" 
+Sample points on a boundary of a manifold's domain
+"""
+function  boundary end
+
+"""
+Sample boundary for a 1-2 dimensional manifold
+"""
+boundary(m::Manifold, n::Int)::Vector{Point} = if dim(m) == 1
+    map(p->Point(m, p), boundary(m.domain, n))  |> collect
+else
+    map(p->Point(m, [p...]), eachrow(boundary(m.domain, n)))  |> collect
+end
+
+"""
+Sample boundary along one dimension of a two dimensional boundary
+"""
+boundary(m::Manifold, n::Int, d::Int)::Vector{Point} = if dim(m) == 1
+    map(p->Point(m, p), boundary(m.domain, n)) |> collect
+else
+    map(p->Point(m, [p...]), eachrow(boundary(m.domain, n, d))) |> collect
+end
+
+
+
+""" sample boundary on domain intervals """
 boundary(::UnitInterval, n::Int)::Vector{Float64} = range(0.0, 1.0, length=n) |> collect
 boundary(::UnitCircle, n::Int)::Vector{Float64} = range(0.0, 2π, length=n) |> collect
 boundary(i::ClosedInterval, n::Int)::Vector{Float64} = range(leftendpoint(i), rightendpoint(i), length=n) |> collect
+
+
 boundary(::UnitSquare, n::Int)::Matrix{Float64} = begin
     n = max((Int ∘ round)(n/4), 1)
     x = [range(0, 1, length=n)..., ones(n)..., range(1, 0, length=n)..., zeros(n)...]
     y = [zeros(n)..., range(0, 1, length=n)..., ones(n)..., range(1, 0, length=n)...]
     return hcat(x, y)
 end
-boundary(::UnitSphere, n::Int)::Matrix{Float64} = hcat(range(0.0, 1.0, length=n), range(0.0, 1.0, length=n)) * 2π
 
-boundary(r::Rectangle, n::Int)::Matrix{Float64} = hcat(range(r.a[1], r.b[1], length=n), range(r.a[2], r.b[2], length=n))
-
-
-
-# --------------------------------- boundary --------------------------------- #
-boundary(m::Manifold, n::Int=24)::Vector{Point} = if dim(m) == 1
-    map(p->Point(m, p), boundary(m.domain, n))
-else
-    map(p->Point(m, [p...]), eachrow(boundary(m.domain, n)))
+function boundary(::UnitSquare, n::Int, d::Int)::Matrix{Float64}
+    if d == 1
+        x = range(0, 1, length=n)
+        y = zeros(n)
+    elseif d == 2
+        x = ones(n)
+        y = range(0, 1, length=n)
+    else
+        throw("Invalid d: $d")
+    end
+    return hcat(x, y)
 end
+
+boundary(r::Rectangle, n::Int)::Matrix{Float64} = begin
+    n = max((Int ∘ round)(n/4), 1)
+    xcomp, ycomp = components(r)
+    _x, _y = boundary(xcomp, n), boundary(ycomp, n)
+    x = [_x..., repeat([_x[end]], n)..., reverse(_x)..., repeat([_x[1]], n)... ]
+    y = [repeat([_y[1]], n)..., _y..., repeat([_y[end]], n)..., reverse(_y)...]
+    return hcat(x, y)
+end
+
+function boundary(r::Rectangle, n::Int, d::Int)::Matrix{Float64}
+    xcomp, ycomp = components(r)
+    _x, _y = boundary(xcomp, n), boundary(ycomp, n)
+    if d  == 1
+        x, y = _x, repeat([_y[1]], n)
+    elseif d == 2
+        x, y = repeat([_x[end]], n), _y
+    else
+        throw("Invalid d: $d")
+    end
+    return hcat(x, y)
+end
+
+
+
 
 # ------------------------------------ dim ----------------------------------- #
 dim(m::Manifold)::Int = dim(m.domain)
@@ -76,6 +135,13 @@ dim(::ClosedInterval) = 1
 dim(::UnitSquare)::Int = 2
 dim(::UnitSphere)::Int = 2
 dim(::Rectangle)::Int = 2
+
+
+# ---------------------------------------------------------------------------- #
+#                                    min/max                                   #
+# ---------------------------------------------------------------------------- #
+Base.min(m::Manifold, d::Int) = boundary(m, 2, d)[1].p[d]
+Base.max(m::Manifold, d::Int) = boundary(m, 2, d)[end].p[d]
 
  
 # ---------------------------------------------------------------------------- #
@@ -103,12 +169,22 @@ Base.string(p::Point) = "$(p.p) - p ∈ $(p.manifold.name)"
 Base.print(io::IO, p::Point) = print(io, string(p))
 Base.show(io::IO, ::MIME"text/plain", p::Point) = print(io, string(p))
 
+Base.:*(x::Number, p::Point) = x*p.p
 
 
 
 # ---------------------------------------------------------------------------- #
 #                                 PARAM. FUNC.                                 #
 # ---------------------------------------------------------------------------- #
+
+"""
+Parametrized function on a manifold.
+
+Function from a domain D → 𝓜.
+Functions f are maps from a point p ∈ D to a point f(p) ∈ 𝓜.
+If f(p) is outisde of 𝓜 an error is given.
+
+"""
 struct ParametrizedFunction <: AbstractManifoldObject
     name::String
     domain::Domain
@@ -133,4 +209,36 @@ function ParametrizedFunction(name::String, domain::Domain, m::Manifold, f::Func
     y = f.(x)
 
     return ParametrizedFunction(name, domain, m, f, x, map(p -> Point(m, p), y))
+end
+
+
+struct ManifoldGrid <: AbstractManifoldObject
+    v::Vector{ParametrizedFunction}
+    h::Vector{ParametrizedFunction}
+end
+
+
+function ManifoldGrid(m::Manifold)
+    x0, x1 = min(m,1), max(m, 2)
+    y0, y1 = min(m, 1), max(m, 2)
+
+    px(t) = t*x0 + (1-t)*x1
+    py(t) = t*y0 + (1-t)*y1
+
+
+    v = map(
+        i -> ParametrizedFunction(
+            "v:$(i[1])", m, t -> Float64[i[2].p[1], px(t)]
+        ),
+        enumerate(boundary(m, 10, 1))
+    )
+
+    h = map(
+        i -> ParametrizedFunction(
+            "h:$(i[1])", m, t -> Float64[py(t), i[2].p[2]]
+        ),
+        enumerate(boundary(m, 10, 2))
+    )
+
+    return ManifoldGrid(v, h)
 end
