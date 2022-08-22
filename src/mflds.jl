@@ -1,4 +1,4 @@
-
+import Term.Style: apply_style
 using DomainSets
 import DomainSets: ×
 
@@ -27,6 +27,19 @@ C = Manifold("Circle", UnitCircle())
 S = Manifold("Sphere", UnitSphere())
 Cy = Manifold("Cylinder", UnitCircle() × UnitInterval())
 T = Manifold("T ≃ C × C", UnitCircle() × UnitCircle())
+
+
+
+# ---------------------------------- sample ---------------------------------- #
+Base.rand(m::AbstractManifold, n::Int) = map(
+    p -> Point(m, collect(p)), eachrow(rand(m.domain, n))
+)
+
+Base.rand(::UnitInterval, n::Int) = rand(n)
+Base.rand(::UnitCircle, n::Int) = rand(n) * 2π
+Base.rand(::UnitSquare, n::Int) = hcat(rand(n), rand(n))
+Base.rand(::UnitSphere, n::Int) = hcat(rand(n), rand(n)) * 2π
+
  
 # ---------------------------------------------------------------------------- #
 #                                     POINT                                    #
@@ -41,6 +54,8 @@ struct Point <: AbstractManifoldObject
         new(manifold, p)
     end
 end
+
+Point(m::Manifold, p::Float64) = Point(m, [p])
 
 Base.string(p::Point) = "$(p.p) - p ∈ $(p.manifold.name)"
 Base.print(io::IO, p::Point) = print(io, string(p))
@@ -61,7 +76,7 @@ struct ParametrizedFunction <: AbstractManifoldObject
     y::Vector{Point}
 end
 
-Base.string(pf::ParametrizedFunction) = "func.'$(pf.name)' in $(pf.m.name): $(pf.domain) → $(pf.m.domain)"
+Base.string(pf::ParametrizedFunction) = "func.{bold white}'$(pf.name)'{/bold white} in $(pf.m.name): {dim}$(pf.domain) → $(pf.m.domain)" |> apply_style
 Base.print(io::IO, pf::ParametrizedFunction) = print(io, string(pf))
 Base.show(io::IO, ::MIME"text/plain", pf::ParametrizedFunction) = print(io, string(pf))
 
