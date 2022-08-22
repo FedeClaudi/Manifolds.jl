@@ -1,13 +1,15 @@
 using Manifolds
 
-# TODO dim(m::Manifold)
+# TODO make tests for functionality implemented so far
 # TODO Embedding: check for dimensionality match
 
+# TODO make sphere work
+# TODO make torus work
+# TODO make Cy work
 
+# TODO visualize embedded
+# TODO visualize parametrized function & points
 
-f = ParametrizedFunction("test", R2, (t) -> [t, t])
+using Plots
 
-
-e = Embedding("R2 rot", R2, R2, (x, y) -> [.5x*.5y, x])
-
-embed(f, e)
+plot(R2)
