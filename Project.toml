@@ -1,0 +1,20 @@
+name = "Manifolds"
+uuid = "e8f966e9-05ec-4277-8375-587fc23743ce"
+authors = ["FedeClaudi <federicoclaudi@protonmail.com> and contributors"]
+version = "0.1.0"
+
+[deps]
+DomainSets = "5b8099bc-c8ec-5219-889f-1d9e522a28bf"
+IntervalSets = "8197267c-284f-5f27-9208-e0e47529a953"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
+Term = "22787eb5-b846-44ae-b979-8e399b8463ab"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]
