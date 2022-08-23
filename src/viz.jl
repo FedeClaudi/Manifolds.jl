@@ -2,6 +2,9 @@ using Plots
 import MyterialColors: indigo_dark, indigo_light, indigo_darker, indigo
 
 @recipe function f(m::Manifold)
+    D = extdim(m)
+
+    # seriestype --> (D >= 3 ? :scatter : :path)
     linecolor   --> indigo_dark
     linewidth   --> 3
     markershape :=  :none
@@ -10,21 +13,27 @@ import MyterialColors: indigo_dark, indigo_light, indigo_darker, indigo
     grid        --> false
 
     pts = boundary(m, 40)
-    x = map(p->p.p[1], pts)
-    y = if extdim(m) == 1
+    x = getcoord(pts, :x)
+    y = if D == 1
         zeros(length(x))
     else
-        map(p -> p.p[2], pts)
+        getcoord(pts, :y)
     end
 
-    @series begin
-        linewidth   --> 0
-        label       := nothing
-        fillcolor   --> indigo_light
-        Shape(x, y)
+    if D == 2  # draw area 2D
+        @series begin
+            linewidth   --> 0
+            label       := nothing
+            fillcolor   --> indigo_light
+            Shape(x, y)
+        end
     end
 
-    x, y  
+    return if D < 3
+        x, y 
+    else
+        x, y, getcoord(pts, :z)
+    end
 end
 
 
@@ -38,7 +47,7 @@ end
     markerstrokecolor --> :black
     markerstrokewidth --> 2
 
-    [p.p[1]], [p.p[2]]
+    getcoord(p, :x), getcoord(p, :y)
 end
 
 @recipe function f(p::ParametrizedFunction)
@@ -49,10 +58,7 @@ end
     linecolor --> indigo_darker
     linewidth --> 2
 
-
-    x = map(p -> p.p[1], p.y)
-    y = map(p -> p.p[2], p.y)
-    x, y
+    getcoord(fn.y, :x), getcoord(fn.y, :y)
 end
 
 @recipe function f(g::ManifoldGrid)
@@ -64,11 +70,18 @@ end
     linewidth --> 1.5
     linealpha --> 1.0
 
+    D = dim(g)
+
     for fn in g.v
         @series begin
-            x = map(p -> p.p[1], fn.y)
-            y = map(p -> p.p[2], fn.y)
-            x, y
+            x = getcoord(fn.y, :x)
+            y = getcoord(fn.y, :y)
+            return if D < 3
+                x, y
+            else
+                z = getcoord(fn.y, :z)
+                x, y, z
+            end
         end
     end
 
@@ -77,9 +90,14 @@ end
         @series begin
             linewidth := .4
             linealpha := .8
-            x = map(p -> p.p[1], fn.y)
-            y = map(p -> p.p[2], fn.y)
-            x, y
+            x = getcoord(fn.y, :x)
+            y = getcoord(fn.y, :y)
+            return if D < 3
+                x, y
+            else
+                z = getcoord(fn.y, :z)
+                x, y, z
+            end
         end
     end
 end

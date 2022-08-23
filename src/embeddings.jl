@@ -50,7 +50,6 @@ function embed(m::Manifold, e::Embedding)::Manifold
     if length(methods(e.ϕ, (Point, ))) < 1
         @eval begin
             $e.ϕ(x::Vector{Point}) = $e.ϕ.(x)
-            # $e.ϕ(x::Vector{Float64}) = $e.ϕ(x...)
             $e.ϕ(p::Point) = Point($m, $e.ϕ(p.p...))
         end
     end

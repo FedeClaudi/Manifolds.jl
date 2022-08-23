@@ -139,7 +139,7 @@ dim(::Rectangle)::Int = 2
 
 """ Extrinsic dimensionality """
 function extdim end
-extdim(m::Manifold) = length(Point(R, [0]) |> m.ϕ)
+extdim(m::Manifold) = length(Point(R, repeat([0], dim(m))) |> m.ϕ)
 
 
 # ---------------------------------------------------------------------------- #
@@ -159,25 +159,11 @@ abstract type AbstractManifoldObject end
 struct Point <: AbstractManifoldObject
     manifold::Manifold
     p::Vector{Float64}
-
-    # function Point(manifold::Manifold, p::Vector{Float64})
-    #     if p isa Vector && (manifold.domain isa UnitInterval || manifold.domain isa ClosedInterval)
-    #         @assert p[1] ∈ manifold.domain "Point $p out of manifold domain: $(manifold.domain)"
-    #     else
-    #         @assert p ∈ manifold.domain "Point $p out of manifold domain: $(manifold.domain)"
-    #     end
-    #     new(manifold, p)
-    # end
-    # function Point(m::Manifold, p::Vector{Float64})
-    #     _p = copy(p)
-    #     p = m.ϕ(p)
-    #     p = p isa Number ? [p] : p
-    #     # @info "done" p m.ϕ _p
-    #     new(m, p)
-    # end
 end
 
 Point(m::Manifold, p::Float64) = Point(m, [p])
+
+dim(p::Point) = length(p.p)
 
 Base.string(p::Point) = "$(p.p) - p ∈ $(p.manifold.name)"
 Base.print(io::IO, p::Point) = print(io, string(p))
@@ -229,6 +215,7 @@ Base.string(pf::ParametrizedFunction) = "func.{bold white}'$(pf.name)'{/bold whi
 Base.print(io::IO, pf::ParametrizedFunction) = print(io, string(pf))
 Base.show(io::IO, ::MIME"text/plain", pf::ParametrizedFunction) = print(io, string(pf))
 
+dim(f::ParametrizedFunction) = dim(f.y[1])
 
 # ---------------------------------------------------------------------------- #
 #                                 MANIFOLD GRID                                #
@@ -239,8 +226,13 @@ struct ManifoldGrid <: AbstractManifoldObject
     h::Vector{ParametrizedFunction}
 end
 
+Base.string(pf::ManifoldGrid) = "ManifoldGrid" 
+Base.print(io::IO, pf::ManifoldGrid) = print(io, string(pf))
+Base.show(io::IO, ::MIME"text/plain", pf::ManifoldGrid) = print(io, string(pf))
 
-function ManifoldGrid(m::Manifold)
+dim(g::ManifoldGrid) = dim(g.v[1])
+
+function ManifoldGrid(m::Manifold, n=10)
     x0, x1 = min(m,1), max(m, 2)
     y0, y1 = min(m, 1), max(m, 2)
 
@@ -252,14 +244,14 @@ function ManifoldGrid(m::Manifold)
         i -> ParametrizedFunction(
             "v:$(i[1])", m, t -> Float64[i[2].p[1], px(t)]
         ),
-        enumerate(boundary(m, 10, 1))
+        enumerate(boundary(m, n, 1))
     )
 
     h = map(
         i -> ParametrizedFunction(
             "h:$(i[1])", m, t -> Float64[py(t), i[2].p[2]]
         ),
-        enumerate(boundary(m, 10, 2))
+        enumerate(boundary(m, n, 2))
     )
 
     return ManifoldGrid(v, h)
