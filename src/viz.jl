@@ -11,7 +11,7 @@ import MyterialColors: indigo_dark, indigo_light, indigo_darker, indigo
 
     pts = boundary(m, 40)
     x = map(p->p.p[1], pts)
-    y = if dim(m) == 1
+    y = if extdim(m) == 1
         zeros(length(x))
     else
         map(p -> p.p[2], pts)

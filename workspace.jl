@@ -16,9 +16,10 @@ install_term_repr()
 using Plots
 
 
-plot(R)
-plot!(R2)
+p = plot(R)
+# plot!(R2)
 
-e = Embedding("ϕ", R, R2, (x)->[x, 2x])
+e = Embedding("ϕ", R, R2, (x::Float64)->[-0.5x, .2x])
 n = embed(R, e)
 plot!(n)
+p

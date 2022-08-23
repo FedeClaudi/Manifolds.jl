@@ -15,10 +15,6 @@ struct Manifold <: AbstractManifold
     name::String
     domain::Domain
     ϕ::Function  # map applied to points (e.g. for embedded mflds)
-
-    # function Manifold(name::String, domain::Domain, ϕ::Function)
-    #     new(name, domain, ϕ)
-    # end
 end
 
 Manifold(name::String, domain::Domain) = Manifold(name, domain, identity)
@@ -51,7 +47,6 @@ Base.rand(m::AbstractManifold, n::Int) = map(
 Base.rand(::UnitInterval, n::Int)::Vector{Float64} = rand(n) |> m.ϕ
 Base.rand(::UnitCircle, n::Int)::Vector{Float64} = rand(n) * 2π |> m.ϕ
 Base.rand(::UnitSquare, n::Int)::Matrix{Float64} = hcat(rand(n), rand(n)) |> m.ϕ
-Base.rand(::UnitSphere, n::Int)::Matrix{Float64} = hcat(rand(n), rand(n)) * 2π |> m.ϕ
 
 # ---------------------------------- boundary ---------------------------------- #
 
@@ -64,10 +59,10 @@ function  boundary end
 Sample boundary for a 1-2 dimensional manifold
 """
 boundary(m::Manifold, n::Int)::Vector{Point} = if dim(m) == 1
-    map(p->Point(m, p), boundary(m.domain, n))  |> collect
-else
-    map(p->Point(m, [p...]), eachrow(boundary(m.domain, n)))  |> collect
-end |> m.ϕ
+        map(p->Point(m, p), boundary(m.domain, n))  |> collect
+    else
+        map(p->Point(m, [p...]), eachrow(boundary(m.domain, n)))  |> collect
+    end |> m.ϕ
 
 """
 Sample boundary along one dimension of a two dimensional boundary
@@ -82,7 +77,6 @@ end |> m.ϕ
 
 """ sample boundary on domain intervals """
 boundary(::UnitInterval, n::Int)::Vector{Float64} = range(0.0, 1.0, length=n) |> collect
-boundary(::UnitCircle, n::Int)::Vector{Float64} = range(0.0, 2π, length=n) |> collect
 boundary(i::ClosedInterval, n::Int)::Vector{Float64} = range(leftendpoint(i), rightendpoint(i), length=n) |> collect
 
 
