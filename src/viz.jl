@@ -39,7 +39,7 @@ end
 
 @recipe function f(p::Point)
     seriestype --> :scatter
-    markersize := 10
+    markersize --> 10
     markercolor   --> indigo_darker
     label    := "p"
     aspect_ratio := :equal
@@ -47,18 +47,27 @@ end
     markerstrokecolor --> :black
     markerstrokewidth --> 2
 
-    getcoord(p, :x), getcoord(p, :y)
+    
+    return if dim(p) < 3
+        [getcoord(p, :x)], [getcoord(p, :y)]
+    else
+        [getcoord(p, :x)], [getcoord(p, :y)], [getcoord(p, :z)]
+    end
 end
 
-@recipe function f(p::ParametrizedFunction)
+@recipe function f(fn::ParametrizedFunction)
     seriestype --> :path
-    label    := p.name
+    label    := fn.name
     aspect_ratio := :equal
     grid        --> false
     linecolor --> indigo_darker
     linewidth --> 2
 
-    getcoord(fn.y, :x), getcoord(fn.y, :y)
+    return if dim(fn) < 3
+        getcoord(fn.y, :x), getcoord(fn.y, :y)
+    else
+        getcoord(fn.y, :x), getcoord(fn.y, :y), getcoord(fn.y, :z)
+    end
 end
 
 @recipe function f(g::ManifoldGrid)
@@ -88,8 +97,8 @@ end
     
     for fn in g.h
         @series begin
-            linewidth := .4
-            linealpha := .8
+            linewidth --> .4
+            linealpha --> .8
             x = getcoord(fn.y, :x)
             y = getcoord(fn.y, :y)
             return if D < 3

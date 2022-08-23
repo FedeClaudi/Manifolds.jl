@@ -123,6 +123,27 @@ function boundary(r::Rectangle, n::Int, d::Int)::Matrix{Float64}
 end
 
 
+function boundary(::UnitCube, n::Int)::Matrix{Float64}
+    n = max((Int ∘ round)(n/12), 4)
+
+    u = boundary(UnitInterval(), n)
+    ru = reverse(u)
+    z, o = zeros(n), ones(n)
+    x = vcat(
+        u, o, ru, z, z, o, o, z, u, o, ru, z
+    )
+    y = vcat(
+        z, u, o, ru, z, z, o, o, z, u, o, ru
+    )
+    z = vcat(
+        z, z, z, z, u, u, u, u, o, o, o, o
+    )
+    return hcat(x, y, z)
+end
+
+
+
+
 
 
 # ------------------------------------ dim ----------------------------------- #
@@ -136,6 +157,7 @@ dim(::ClosedInterval) = 1
 dim(::UnitSquare)::Int = 2
 dim(::UnitSphere)::Int = 2
 dim(::Rectangle)::Int = 2
+dim(::UnitCube)::Int = 3
 
 """ Extrinsic dimensionality """
 function extdim end
@@ -145,10 +167,10 @@ extdim(m::Manifold) = length(Point(R, repeat([0], dim(m))) |> m.ϕ)
 # ---------------------------------------------------------------------------- #
 #                                    min/max                                   #
 # ---------------------------------------------------------------------------- #
-Base.min(m::Manifold)::Vector{Float64} = boundary(m, 2)[1].p
-Base.max(m::Manifold)::Vector{Float64} = boundary(m, 2)[end].p
-Base.min(m::Manifold, d::Int)::Float64 = boundary(m, 2, d)[1].p[d]
-Base.max(m::Manifold, d::Int)::Float64 = boundary(m, 2, d)[end].p[d]
+Base.min(m::Manifold)::Vector{Float64} = boundary(m, 5)[1].p
+Base.max(m::Manifold)::Vector{Float64} = boundary(m, 5)[end].p
+Base.min(m::Manifold, d::Int)::Float64 = boundary(m, 5, d)[1].p[d]
+Base.max(m::Manifold, d::Int)::Float64 = boundary(m, 5, d)[end].p[d]
 
  
 # ---------------------------------------------------------------------------- #
@@ -199,10 +221,10 @@ struct ParametrizedFunction <: AbstractManifoldObject
     y::Vector{Point}
 end
 
-ParametrizedFunction(name::String, m::AbstractManifold, f::Function)::ParametrizedFunction = ParametrizedFunction(name, UnitInterval(), m, f)
+ParametrizedFunction(name::String, m::AbstractManifold, f::Function; kwargs...)::ParametrizedFunction = ParametrizedFunction(name, UnitInterval(), m, f; kwargs...)
 
-function ParametrizedFunction(name::String, domain::Domain, m::Manifold, f::Function)
-    p = 0:.05:1
+function ParametrizedFunction(name::String, domain::Domain, m::Manifold, f::Function; δ=0.05)
+    p = 0:δ:1
     x0 = collect([leftendpoint(domain)...])
     x1 = collect([rightendpoint(domain)...])
     x = @. x0 * p + x1 * (1 - p)
@@ -232,24 +254,24 @@ Base.show(io::IO, ::MIME"text/plain", pf::ManifoldGrid) = print(io, string(pf))
 
 dim(g::ManifoldGrid) = dim(g.v[1])
 
-function ManifoldGrid(m::Manifold, n=10)
-    x0, x1 = min(m,1), max(m, 2)
-    y0, y1 = min(m, 1), max(m, 2)
+function ManifoldGrid(m::Manifold, n=10; δ=0.01)
+    x0, x1 = min(m,1), max(m, 1)
+    y0, y1 = min(m, 2), max(m, 2)
 
-    px(t) = t*x0 + (1-t)*x1
-    py(t) = t*y0 + (1-t)*y1
+    px(t) = t*y0 + (1-t)*y1
+    py(t) = t*x0 + (1-t)*x1
 
 
     v = map(
         i -> ParametrizedFunction(
-            "v:$(i[1])", m, t -> Float64[i[2].p[1], px(t)]
+            "v:$(i[1])", m, t -> Float64[i[2].p[1], px(t)]; δ=δ
         ),
         enumerate(boundary(m, n, 1))
     )
 
     h = map(
         i -> ParametrizedFunction(
-            "h:$(i[1])", m, t -> Float64[py(t), i[2].p[2]]
+            "h:$(i[1])", m, t -> Float64[py(t), i[2].p[2]]; δ=δ
         ),
         enumerate(boundary(m, n, 2))
     )

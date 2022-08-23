@@ -1,3 +1,7 @@
+
+# ---------------------------------------------------------------------------- #
+#                                   EMBEDDING                                  #
+# ---------------------------------------------------------------------------- #
 abstract type AbstractEmbedding end
 
 
@@ -13,8 +17,37 @@ Base.print(io::IO, e::Embedding) = print(io, string(e))
 Base.show(io::IO, ::MIME"text/plain", e::Embedding) = print(io, string(e))
 
 
+# ---------------------------- standard embeddings --------------------------- #
 
-""" Embed """
+standard_R2_to_R3 = Embedding(
+    "std. plane",
+    R2, R3,
+    (x, y) -> [x, y, x+y]
+)
+
+
+standard_sphere = Embedding(
+    "std. sphere",
+    S, R3,
+    (θ₁, θ₂) -> [sin(θ₁)cos(θ₂), sin(θ₁)sin(θ₂), cos(θ₁)]
+)
+
+
+standard_torus = Embedding(
+    "std. torus",
+    T, R3,
+    (θ₁, θ₂) -> begin
+        R, r = 1, .5  # radii
+
+        [(R + r * cos(θ₁)) * cos(θ₂), (R + r * cos(θ₁)) * sin(θ₂), r * sin(θ₁),]
+    end
+)
+
+
+
+# ---------------------------------------------------------------------------- #
+#                                     EMBED                                    #
+# ---------------------------------------------------------------------------- #
 function embed end
 
 embed(p::Point, e::Embedding)::Point = Point(e.n, e.ϕ(p.p...))

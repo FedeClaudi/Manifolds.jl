@@ -17,5 +17,5 @@ getcoord(x::Point, coord::Symbol)::Float64 = begin
     else
         3
     end
-    return p.p[idx]
+    return x.p[idx]
 end
