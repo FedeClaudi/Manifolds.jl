@@ -1,4 +1,8 @@
 using Manifolds
+using Term
+install_term_logger()
+install_term_repr()
+# install_term_stacktrace()
 
 # TODO make tests for functionality implemented so far
 # TODO Embedding: check for dimensionality match
@@ -7,20 +11,14 @@ using Manifolds
 
 # TODO embedding
     # - apply embedding to mfld's ϕ
-    # - apply mfld's ϕ to points
-
+    # - viz
 
 using Plots
 
-# e = Embedding("test", R2, R2, (x, y)->[x/2, y/2])
 
+plot(R)
+plot!(R2)
 
-g = ManifoldGrid(largeR)
-
-
-
-
-# plot(R2)
-plot(largeR)
-plot!(Point(R2, [.25, .25]))
-plot!(g)
+e = Embedding("ϕ", R, R2, (x)->[x, 2x])
+n = embed(R, e)
+plot!(n)

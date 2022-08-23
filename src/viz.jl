@@ -2,7 +2,6 @@ using Plots
 import MyterialColors: indigo_dark, indigo_light, indigo_darker, indigo
 
 @recipe function f(m::Manifold)
-    series_type = :path
     linecolor   --> indigo_dark
     linewidth   --> 3
     markershape :=  :none
@@ -51,7 +50,7 @@ end
     linewidth --> 2
 
 
-    x = map(p -> p.p[1], p.x)
+    x = map(p -> p.p[1], p.y)
     y = map(p -> p.p[2], p.y)
     x, y
 end
