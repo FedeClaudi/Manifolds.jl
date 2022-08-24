@@ -11,11 +11,10 @@ plotly()
 # TODO ensure embedded fn are typed
 
 # TODO parameterized function check signature
-# TODO paramtrized function give good errors
+# TODO parametrized function give good errors
 
 # TODO allow for different sampling density in each direction
-
-# TODO figure out how to plot arrows in 3D
+# TODO sampling -> scale by domain's extent for uniform sampling
 
 
 import Manifolds: standard_torus
@@ -24,15 +23,12 @@ import Manifolds: standard_torus
 ϕ(x) = embed(x, standard_torus)
 
 vf = VectorField(
-    "v", T, (x, y) -> [0, sin(y)]
+    "v", T, (x, y) -> [1, sin(y)]
 )
 
 
 p = plot(xlim=[-1, 1], ylim=[-1, 1], zlim=[-1, 1])
 plot!(ϕ(ManifoldGrid(T, 40)), label=nothing)
 
-plotvfield(ϕ(vf), 40; vscale=.2)
+plotvfield(ϕ(vf), 80; vscale=.2)
 p
-
-# TODO fix torus squished
-# TODO move vfield vecs pushforward to embedding func

@@ -54,14 +54,13 @@ struct VectorField <: AbstractVectorField
     ψ::Function         # specialized field map
 
     function VectorField(name::String, m::Manifold, _ψ::Function)
-        
         # check _ψ's return type
         _args = Tuple(repeat([Float64], dim(m)))
         @assert Base.return_types(_ψ, _args)[1] == Vector{Float64} "Scalar field's _ψ function must return a Vector"
 
         # add specialized methods
         ψ(x) = _ψ(x)
-        ψ(x::Point)::Vector{Float64} = _ψ(x.p...)
+        ψ(p::Point)::Vector{Float64} =  ϕ̂(p) * _ψ(p.p...)
         ψ()::Vector{Vector} = ψ.(sample(m, 20))
         ψ(m::Manifold)::Vector{Vector} = ψ.(sample(m, 20))
         ψ(mfld::Manifold, n::Int)::Vector{Vector} = ψ.(sample(mfld, n))

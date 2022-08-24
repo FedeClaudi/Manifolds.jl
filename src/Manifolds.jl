@@ -1,5 +1,16 @@
 module Manifolds
 
+"""
+    pushforward
+
+Compute the pushforward of a vector on 
+an embedded manifold.
+
+Defined here so that it's available to fields.jl.
+"""
+function pushforward end
+ϕ̂ = pushforward
+
 include("mflds.jl")
 include("fields.jl")
 include("embeddings.jl")

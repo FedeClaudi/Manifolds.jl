@@ -181,45 +181,6 @@ end
 end
 
 
-@recipe function f(F::AbstractVectorField, n::Int=20; vscale=1)
-    vp = sample(F.m, n)
-    vp = F.m.ϕ(vp)  # embed if necessary
-    x = map(p -> getcoord(p, :x), vp)
-    D = dim(vp[1])
-
-
-    colorbar --> nothing
-    label    --> nothing
-    aspect_ratio := :equal
-    grid        --> false
-    
-     
-    # set "quiver"
-    vecs = F.ψ.(vp)
-    Δv = if D == 1
-        (getcoord.(vecs, :x), zeros(length(x)))
-    elseif D == 2
-        (getcoord.(vecs, :x), getcoord.(vecs, :y))
-    else
-        (getcoord.(vecs, :x), getcoord.(vecs, :y), getcoord.(vecs, :z))
-    end
-    quiver := (Δv .* vscale)
-
-    # set arrow style
-    linecolor --> :black
-    fillcolor --> :black
-    linewidth --> 2
-        
-    
-    return if D == 1
-        x, zeros(length(x))
-    elseif D == 2
-        x, map(p -> getcoord(p, :y), vp)
-    else
-        x, map(p -> getcoord(p, :y), vp), map(p -> getcoord(p, :z), vp)
-    end
-end
-
 
 
 function plotvfield(F::AbstractVectorField, n::Int=20; vscale=.2, linewidth=4, linecolor=:black, markersize=2)
@@ -227,13 +188,9 @@ function plotvfield(F::AbstractVectorField, n::Int=20; vscale=.2, linewidth=4, l
     embed_vp::Vector{Point} = F.m.ϕ.(vp)  # embed if necessary
     x::Vector{Float64} = map(p -> getcoord(p, :x), embed_vp)
     D = dim(embed_vp[1])
-
     
-    # Compute vecs
-    vecs = map(
-        p -> ϕ̂(p) * F.ψ(p),
-        vp
-    )
+    # Compute vecs (embedding's pushforward is applied by F.ψ)
+    vecs = F.ψ.(vp)
 
     #  prep coordinates for plotting
     Δv = if D == 1

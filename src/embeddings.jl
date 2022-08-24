@@ -79,15 +79,6 @@ end
 
 
 function embed(m::Manifold, e::Embedding)::Manifold
-    # ensure all methods for the manifold embedding function exist
-    # if length(methods(e.ϕ, (Point, ))) < 1
-    #     @eval begin
-    #         $e.ϕ(x::Vector) = $e.ϕ.(x)
-    #         $e.ϕ(x::Vector{Point}) = $e.ϕ.(x)
-    #         $e.ϕ(p::Point) = Point($m, $e.ϕ(p.p...))
-    #     end
-    # end
-
     """ Embedding map """
     phi(x::Vector) = e.ϕ.(x...)
     phi(x::Vector{Point}) = e.ϕ.(x)
@@ -108,10 +99,13 @@ function embed(f::AbstractField, e::Embedding)::AbstractField
     fieldtype = typeof(f)
     fieldtype(
         f.name, 
-        embed(f.m, e),
+        embed(f.m, e),  # embedding the mfld applies the pushforward to the vec
         f._ψ
     )
 end
+
+
+
 
 
 # ---------------------------------------------------------------------------- #
@@ -141,4 +135,3 @@ pushforward(m::Manifold, p::Point)::Matrix{Float64} = jacobian(m.ϕ, p.p)
 pushforward(p::Point)::Matrix{Float64} = pushforward(p.m, p)
 pushforward(m::Manifold, p::Vector{Float64})::Matrix{Float64} = pushforward(m, Point(m, p))
 
-ϕ̂ = pushforward
