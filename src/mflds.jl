@@ -198,7 +198,7 @@ Base.max(m::Manifold, d::Int)::Float64 = boundary(m, 5, d)[end].p[d]
 abstract type AbstractManifoldObject end
 
 struct Point <: AbstractManifoldObject
-    manifold::Manifold
+    m::Manifold
     p::Vector{Float64}
 end
 
@@ -206,14 +206,14 @@ Point(m::Manifold, p::Float64) = Point(m, [p])
 
 dim(p::Point) = length(p.p)
 
-Base.string(p::Point) = "$(p.p) - p ∈ $(p.manifold.name)"
+Base.string(p::Point) = "$(p.p) - p ∈ $(p.m.name)"
 Base.print(io::IO, p::Point) = print(io, string(p))
 Base.show(io::IO, ::MIME"text/plain", p::Point) = print(io, string(p))
 Base.length(p::Point) = length(p.p)
 Base.:*(x::Number, p::Point) = x*p.p
 function Base.:+(p::Point, x::Vector{Float64})
     @assert length(p.p)==length(x) "Dimension mismatch"
-    return Point(p.manifold, p.p + x)
+    return Point(p.m, p.p + x)
 end
 Base.:+(x::Vector{Float64}, p::Point) = p + x
 

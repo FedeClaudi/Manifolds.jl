@@ -19,3 +19,15 @@ getcoord(x::Point, coord::Symbol)::Float64 = begin
     end
     return x.p[idx]
 end
+
+
+getcoord(x::Vector{Float64}, coord::Symbol)::Float64 = begin
+    idx = if coord == :x
+        1
+    elseif coord == :y
+        2
+    else
+        3
+    end
+    return x[idx]
+end

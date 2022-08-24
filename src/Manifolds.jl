@@ -10,6 +10,7 @@ include("utils.jl")
 export Manifold, Point, ParametrizedFunction, boundary, ManifoldGrid
 export R, R2, R3, C, S, Cy, T, largeR
 export Embedding, embed
-export ScalarField
+export ScalarField, VectorField, pushforward
+export plotvfield
 
 end

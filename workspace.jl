@@ -15,25 +15,24 @@ plotly()
 
 # TODO allow for different sampling density in each direction
 
+# TODO figure out how to plot arrows in 3D
 
 
-import Manifolds: standard_R2_to_R3
+import Manifolds: standard_torus
 
-e = Embedding(
-    "ϕ", R2, R3, (x, y) -> [x, y, x^2*y^2]
+
+ϕ(x) = embed(x, standard_torus)
+
+vf = VectorField(
+    "v", T, (x, y) -> [0, sin(y)]
 )
 
-ϕ(x) = embed(x, e)
 
-F = ScalarField(
-    "𝔽", R2, (x, y) -> x+y
-)
+p = plot(xlim=[-1, 1], ylim=[-1, 1], zlim=[-1, 1])
+plot!(ϕ(ManifoldGrid(T, 40)), label=nothing)
 
+plotvfield(ϕ(vf), 40; vscale=.2)
+p
 
-p = plot(
-    ϕ(R2), label=nothing
-)
-
-plot!(
-    ϕ(F), 50
-)
+# TODO fix torus squished
+# TODO move vfield vecs pushforward to embedding func

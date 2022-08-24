@@ -5,6 +5,7 @@ version = "0.1.0"
 
 [deps]
 DomainSets = "5b8099bc-c8ec-5219-889f-1d9e522a28bf"
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
 IntervalSets = "8197267c-284f-5f27-9208-e0e47529a953"
 MyterialColors = "1c23619d-4212-4747-83aa-717207fae70f"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"

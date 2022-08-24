@@ -1,3 +1,4 @@
+import ForwardDiff: jacobian
 
 # ---------------------------------------------------------------------------- #
 #                                   EMBEDDING                                  #
@@ -37,8 +38,7 @@ standard_torus = Embedding(
     "std. torus",
     T, R3,
     (θ₁, θ₂) -> begin
-        R, r = 1, .5  # radii
-
+        R, r = 0.75, .25  # radii
         [(R + r * cos(θ₁)) * cos(θ₂), (R + r * cos(θ₁)) * sin(θ₂), r * sin(θ₁),]
     end
 )
@@ -80,15 +80,21 @@ end
 
 function embed(m::Manifold, e::Embedding)::Manifold
     # ensure all methods for the manifold embedding function exist
-    if length(methods(e.ϕ, (Point, ))) < 1
-        @eval begin
-            $e.ϕ(x::Vector{Point}) = $e.ϕ.(x)
-            $e.ϕ(p::Point) = Point($m, $e.ϕ(p.p...))
-        end
-    end
+    # if length(methods(e.ϕ, (Point, ))) < 1
+    #     @eval begin
+    #         $e.ϕ(x::Vector) = $e.ϕ.(x)
+    #         $e.ϕ(x::Vector{Point}) = $e.ϕ.(x)
+    #         $e.ϕ(p::Point) = Point($m, $e.ϕ(p.p...))
+    #     end
+    # end
+
+    """ Embedding map """
+    phi(x::Vector) = e.ϕ.(x...)
+    phi(x::Vector{Point}) = e.ϕ.(x)
+    phi(p::Point) = Point(m, e.ϕ(p.p...))
     
     # update maniofold embedding function
-    ϕ = (e.ϕ ∘ m.ϕ)
+    ϕ = (phi ∘ m.ϕ)
 
     return Manifold(
         "$(m.name) embedded by $(e.name) in $(e.n.name)",
@@ -106,3 +112,33 @@ function embed(f::AbstractField, e::Embedding)::AbstractField
         f._ψ
     )
 end
+
+
+# ---------------------------------------------------------------------------- #
+#                                  PUSHFORWARD                                 #
+# ---------------------------------------------------------------------------- #
+"""
+    pushforward(p::Point, e::Embedding)::Matrix{Float64}
+
+Get the pushforward of a manifold or embedding map ϕ at a point p ∈ M
+"""
+function pushforward(p::Point, e::Embedding)::Matrix{Float64}
+    N = embed(p.m, e)  # get the embedding map N.ϕ
+    jacobian(N.ϕ, p.p)
+end
+
+
+pushforward(m::Manifold, p::Vector{Float64}, e::Embedding)::Matrix{Float64} = pushforward(
+    Point(m, p), e
+)
+
+"""
+    pushforward(m::Manifold, p::Point)::Matrix{Float64}
+
+If no embedding is given. assume the manifold is already embedded.
+"""
+pushforward(m::Manifold, p::Point)::Matrix{Float64} = jacobian(m.ϕ, p.p)
+pushforward(p::Point)::Matrix{Float64} = pushforward(p.m, p)
+pushforward(m::Manifold, p::Vector{Float64})::Matrix{Float64} = pushforward(m, Point(m, p))
+
+ϕ̂ = pushforward
