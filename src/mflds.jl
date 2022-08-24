@@ -1,7 +1,7 @@
 import Term.Style: apply_style
 using DomainSets
 import DomainSets: ×, components
-
+import Base.Iterators: product, flatten
 
 identity(x) = x
 
@@ -141,8 +141,29 @@ function boundary(::UnitCube, n::Int)::Matrix{Float64}
     return hcat(x, y, z)
 end
 
+"""
+    sample
 
+Sample a manifold.
 
+Similar to `boundary` but sampling the "inside" of a
+manifold too.
+"""
+function sample end
+
+function sample(m::Manifold, n::Int)::Vector{Point}
+    # n = max((Int ∘ round)(n/dim(m)^2), 10)
+    pts = sample(m.domain, n)
+    map(x -> Point(m, [x...]), pts)
+end
+
+function sample(d::Domain, n::Int)::Vector{Tuple}
+    b = boundary(d, n)
+
+    X = product(eachcol(b)...) |> unique |> collect 
+    
+    [X...]  # flatten
+end
 
 
 
@@ -164,9 +185,7 @@ function extdim end
 extdim(m::Manifold) = length(Point(R, repeat([0], dim(m))) |> m.ϕ)
 
 
-# ---------------------------------------------------------------------------- #
-#                                    min/max                                   #
-# ---------------------------------------------------------------------------- #
+# ---------------------------------- min/max --------------------------------- #
 Base.min(m::Manifold)::Vector{Float64} = boundary(m, 5)[1].p
 Base.max(m::Manifold)::Vector{Float64} = boundary(m, 5)[end].p
 Base.min(m::Manifold, d::Int)::Float64 = boundary(m, 5, d)[1].p[d]

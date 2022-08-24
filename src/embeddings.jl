@@ -96,3 +96,13 @@ function embed(m::Manifold, e::Embedding)::Manifold
         ϕ
     )
 end
+
+
+function embed(f::AbstractField, e::Embedding)::AbstractField
+    fieldtype = typeof(f)
+    fieldtype(
+        f.name, 
+        embed(f.m, e),
+        f._ψ
+    )
+end

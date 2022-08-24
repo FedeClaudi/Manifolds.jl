@@ -1,6 +1,10 @@
 using Plots
 import MyterialColors: indigo_dark, indigo_light, indigo_darker, indigo
 
+
+# ---------------------------------------------------------------------------- #
+#                                   MANIFOLD                                   #
+# ---------------------------------------------------------------------------- #
 @recipe function f(m::Manifold)
     D = extdim(m)
 
@@ -37,23 +41,56 @@ import MyterialColors: indigo_dark, indigo_light, indigo_darker, indigo
 end
 
 
+# ---------------------------------------------------------------------------- #
+#                                     POINT                                    #
+# ---------------------------------------------------------------------------- #
+
 @recipe function f(p::Point)
     seriestype --> :scatter
     markersize --> 10
     markercolor   --> indigo_darker
-    label    := "p"
+    label    --> "p"
     aspect_ratio := :equal
     grid        --> false
     markerstrokecolor --> :black
     markerstrokewidth --> 2
 
+    x = [getcoord(p, :x)]
     
-    return if dim(p) < 3
-        [getcoord(p, :x)], [getcoord(p, :y)]
+    return if dim(p) == 1
+        x, [0.0]
+    elseif dim(p) == 2
+        x, [getcoord(p, :y)]
     else
-        [getcoord(p, :x)], [getcoord(p, :y)], [getcoord(p, :z)]
+        x, [getcoord(p, :y)], [getcoord(p, :z)]
     end
 end
+
+@recipe function f(vp::Vector{Point})
+    seriestype --> :scatter
+    markersize --> 10
+    markercolor   --> indigo_darker
+    aspect_ratio := :equal
+    grid        --> false
+    markerstrokecolor --> :black
+    markerstrokewidth --> 2
+
+    x = map(p -> getcoord(p, :x), vp)
+    D = dim(vp[1])
+    
+    return if D == 1
+        x, zeros(length(x))
+    elseif D == 2
+        x, map(p -> getcoord(p, :y), vp)
+    else
+        x, map(p -> getcoord(p, :y), vp), map(p -> getcoord(p, :z), vp)
+    end
+end
+
+
+# ---------------------------------------------------------------------------- #
+#                             ParametrizedFunction                             #
+# ---------------------------------------------------------------------------- #
 
 @recipe function f(fn::ParametrizedFunction)
     seriestype --> :path
@@ -70,6 +107,9 @@ end
     end
 end
 
+# ---------------------------------------------------------------------------- #
+#                                 MANIFOLD GRID                                #
+# ---------------------------------------------------------------------------- #
 @recipe function f(g::ManifoldGrid)
     seriestype --> :path
     label    := nothing
@@ -108,5 +148,34 @@ end
                 x, y, z
             end
         end
+    end
+end
+
+
+# ---------------------------------------------------------------------------- #
+#                                    FIELDS                                    #
+# ---------------------------------------------------------------------------- #
+
+@recipe function f(F::AbstractScalarField, n::Int=20)
+    vp = sample(F.m, n)
+    c = F.ψ.(vp)
+
+    vp = F.m.ϕ(vp)  # embed if necessary
+    x = map(p -> getcoord(p, :x), vp)
+    D = dim(vp[1])
+
+    marker_z := c
+    colorbar --> nothing
+    label    --> nothing
+    seriestype := :scatter
+    aspect_ratio := :equal
+    grid        --> false
+    
+    return if D == 1
+        x, zeros(length(x))
+    elseif D == 2
+        x, map(p -> getcoord(p, :y), vp)
+    else
+        x, map(p -> getcoord(p, :y), vp), map(p -> getcoord(p, :z), vp)
     end
 end
