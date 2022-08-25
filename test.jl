@@ -58,7 +58,7 @@ function  boundary end
 """
 Sample boundary for a 1-2 dimensional manifold
 """
-boundary(m::Manifold, n::Union{Tuple, Int})::Vector{Point} = if dim(m) == 1
+boundary(m::Manifold, n::Int)::Vector{Point} = if dim(m) == 1
         map(p->Point(m, p), boundary(m.domain, n))  |> collect
     else
         map(p->Point(m, [p...]), eachrow(boundary(m.domain, n)))  |> collect
@@ -67,7 +67,7 @@ boundary(m::Manifold, n::Union{Tuple, Int})::Vector{Point} = if dim(m) == 1
 """
 Sample boundary along one dimension of a two dimensional boundary
 """
-boundary(m::Manifold, n::Union{Tuple, Int}, d::Int)::Vector{Point} = if dim(m) == 1
+boundary(m::Manifold, n::Int, d::Int)::Vector{Point} = if dim(m) == 1
     map(p->Point(m, p), boundary(m.domain, n)) |> collect
 else
     map(p->Point(m, [p...]), eachrow(boundary(m.domain, n, d))) |> collect
@@ -80,26 +80,20 @@ boundary(::UnitInterval, n::Int)::Vector{Float64} = range(0.0, 1.0, length=n) |>
 boundary(i::ClosedInterval, n::Int)::Vector{Float64} = range(leftendpoint(i), rightendpoint(i), length=n) |> collect
 
 
-get_boundary_n(n::Int)::Tuple = (n, n)
-get_boundary_n(n::Tuple) = n
-
-boundary(::UnitSquare, n::Union{Tuple, Int})::Matrix{Float64} = begin
-    nx, ny = get_boundary_n(n)
-
-    x = [range(0, 1, length=nx)..., ones(ny)..., range(1, 0, length=nx)..., zeros(ny)...]
-    y = [zeros(nx)..., range(0, 1, length=ny)..., ones(nx)..., range(1, 0, length=ny)...]
+boundary(::UnitSquare, n::Int)::Matrix{Float64} = begin
+    n = max((Int ∘ round)(n/4), 2)
+    x = [range(0, 1, length=n)..., ones(n)..., range(1, 0, length=n)..., zeros(n)...]
+    y = [zeros(n)..., range(0, 1, length=n)..., ones(n)..., range(1, 0, length=n)...]
     return hcat(x, y)
 end
 
-function boundary(::UnitSquare, n::Union{Tuple, Int}, d::Int)::Matrix{Float64}
-    nx, ny = get_boundary_n(n)
-
+function boundary(::UnitSquare, n::Int, d::Int)::Matrix{Float64}
     if d == 1
-        x = range(0, 1, length=nx)
-        y = zeros(nx)
+        x = range(0, 1, length=n)
+        y = zeros(n)
     elseif d == 2
-        x = ones(ny)
-        y = range(0, 1, length=ny)
+        x = ones(n)
+        y = range(0, 1, length=n)
     else
         throw("Invalid d: $d")
     end
@@ -108,24 +102,21 @@ end
 
 int(x::Number) = (Int ∘ round)(x)
 
-boundary(r::Rectangle, n::Union{Tuple, Int})::Matrix{Float64} = begin
-    nx, ny = get_boundary_n(n)
-
+boundary(r::Rectangle, n::Int)::Matrix{Float64} = begin
+    n = max(int(n/4), 1)
     xcomp, ycomp = components(r)
-    _x, _y = boundary(xcomp, nx), boundary(ycomp, ny)
-    x = [_x..., repeat([_x[end]], ny)..., reverse(_x)..., repeat([_x[1]], ny)... ]
-    y = [repeat([_y[1]], nx)..., _y..., repeat([_y[end]], nx)..., reverse(_y)...]
+    _x, _y = boundary(xcomp, n), boundary(ycomp, n)
+    x = [_x..., repeat([_x[end]], n)..., reverse(_x)..., repeat([_x[1]], n)... ]
+    y = [repeat([_y[1]], n)..., _y..., repeat([_y[end]], n)..., reverse(_y)...]
     return hcat(x, y)
 end
 
-function boundary(r::Rectangle, n::Union{Tuple, Int}, d::Int)::Matrix{Float64}
-    nx, ny = get_boundary_n(n)
+function boundary(r::Rectangle, n::Int, d::Int)::Matrix{Float64}
     xcomp, ycomp = components(r)
 
     # sample according to relative scale
-    # f = size(xcomp)[1] / size(ycomp)[1]    
-    # nx, ny = int(n * 1/f), int(n * f)
-    # @info "a" f nx ny size(xcomp) size(ycomp) r
+    f = size(xcomp)[1] / size(ycomp)[1]    
+    nx, ny = int(n * 1/f), int(n * f)
     _x, _y = boundary(xcomp, nx), boundary(ycomp, ny)
 
     if d  == 1
@@ -139,8 +130,8 @@ function boundary(r::Rectangle, n::Union{Tuple, Int}, d::Int)::Matrix{Float64}
 end
 
 
-function boundary(::UnitCube, n::Union{Tuple, Int})::Matrix{Float64}
-    n = n isa Tuple ? n[1] : n
+function boundary(::UnitCube, n::Int)::Matrix{Float64}
+    n = max(int(n/12), 4)
 
     u = boundary(UnitInterval(), n)
     ru = reverse(u)
@@ -167,14 +158,17 @@ manifold too.
 """
 function sample end
 
-function sample(m::Manifold, n::Union{Tuple, Int})::Vector{Point}
+function sample(m::Manifold, n::Int)::Vector{Point}
+    # n = max((Int ∘ round)(n/dim(m)^2), 10)
     pts = sample(m.domain, n)
     map(x -> Point(m, [x...]), pts)
 end
 
-function sample(d::Domain, n::Union{Tuple, Int})::Vector{Tuple}
+function sample(d::Domain, n::Int)::Vector{Tuple}
     b = boundary(d, n)
+
     X = product(eachcol(b)...) |> unique |> collect 
+    
     [X...]  # flatten
 end
 

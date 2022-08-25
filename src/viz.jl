@@ -183,7 +183,7 @@ end
 
 
 
-function plotvfield(F::AbstractVectorField, n::Int=20; vscale=.2, linewidth=4, linecolor=:black, markersize=2)
+function plotvfield(F::AbstractVectorField, n::Union{Int, Tuple}=20; vscale=.2, linewidth=4, linecolor=:black, markersize=2)
     vp::Vector{Point} = sample(F.m, n)
     embed_vp::Vector{Point} = F.m.ϕ.(vp)  # embed if necessary
     x::Vector{Float64} = map(p -> getcoord(p, :x), embed_vp)

@@ -17,6 +17,8 @@ plotly()
 # TODO sampling -> scale by domain's extent for uniform sampling
 
 
+# TODO fix plot(ϕ(T))
+
 import Manifolds: standard_torus
 
 
@@ -28,7 +30,9 @@ vf = VectorField(
 
 
 p = plot(xlim=[-1, 1], ylim=[-1, 1], zlim=[-1, 1])
-plot!(ϕ(ManifoldGrid(T, 40)), label=nothing)
+plot!(ϕ(ManifoldGrid(T, (100, 4))), label=nothing)
 
-plotvfield(ϕ(vf), 80; vscale=.2)
+plotvfield(ϕ(vf), (10, 20); vscale=.2)
 p
+
+
