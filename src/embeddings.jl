@@ -11,6 +11,14 @@ struct Embedding
     m::AbstractManifold
     n::AbstractManifold
     ϕ::Function
+
+    function Embedding(name::String, m::AbstractManifold, n::AbstractManifold, ϕ::Function)
+
+        phi(x) = ϕ(x)
+        phi(x::Point) = Point(x.m, ϕ(x.p...))
+        phi(x...) = ϕ(x...)
+        new(name, m, n, phi)
+    end
 end
 
 Base.string(e::Embedding) = "Embedding $(e.name): $(e.m.name) → $(e.n.name)"

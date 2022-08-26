@@ -23,5 +23,6 @@ export R, R2, R3, C, S, Cy, T, largeR
 export Embedding, embed
 export ScalarField, VectorField, pushforward
 export plotvfield
+export Normal
 
 end

@@ -219,3 +219,28 @@ function plotvfield(F::AbstractVectorField, n::Union{Int, Tuple}=20; vscale=.2, 
         plot!(c..., label=nothing, linecolor=linecolor, linewidth=linewidth)
     end
 end
+
+
+# ---------------------------------------------------------------------------- #
+#                                 NORMAL VECTOR                                #
+# ---------------------------------------------------------------------------- #
+
+@recipe function f(N::Normal; vscale::Float64=1.0)
+
+    # seriestype --> (D >= 3 ? :scatter : :path)
+    linecolor   --> indigo_dark
+    linewidth   --> 3
+    markershape :=  :none
+    label       -->  nothing
+    aspect_ratio := :equal
+    grid        --> false
+
+
+    x0 =  N.p.p
+    x1 = x0 + (N.n *vscale)
+
+    x = [x0[1], x1[1]]
+    y = [x0[2], x1[2]]
+    z = [x0[3], x1[3]]
+    x, y, z
+end

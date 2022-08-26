@@ -17,22 +17,35 @@ plotly()
 # TODO sampling -> scale by domain's extent for uniform sampling
 
 
-# TODO fix plot(ϕ(T))
+e = Embedding("a", T, R3,  (θ₁, θ₂) -> begin
+    R, r = 0.75, .25  # radii
+    [(R + r * cos(θ₁)) * cos(θ₂), (R + r * cos(θ₁)) * sin(θ₂), r * sin(θ₁),]
+end)
 
-import Manifolds: standard_torus
+ϕ(x) = embed(x, e)
+
+plot(ϕ(ManifoldGrid(T, 10)))
+
+n = Normal(ϕ(T), [.5, .5])
+plot!(n; vscale=-1)
 
 
-ϕ(x) = embed(x, standard_torus)
-
-vf = VectorField(
-    "v", T, (x, y) -> [1, sin(y)]
-)
+# p = Point(T, [.5, .5])
+# m = embed(T, e)
+# j = jacobian(m.ϕ, p.p)
 
 
-p = plot(xlim=[-1, 1], ylim=[-1, 1], zlim=[-1, 1])
-plot!(ϕ(ManifoldGrid(T, (100, 4))), label=nothing)
+# plane_embedding = Embedding(
+#     "p", T, R3, (x, y) -> begin
+#         x, y = (0.5-x)/2, (0.5-y)/2
+#         x,y,z = j * [x, y]
+#         [x, y, z] + m.ϕ(p).p
+#     end
+# )
 
-plotvfield(ϕ(vf), (10, 20); vscale=.2)
-p
+plot!([-4, 4], [0, 0], [0, 0])
+plot!([0, 0], [-4, 4], [0, 0])
+plot!([0, 0], [0, 0], [-4, 4])
+# plot!(embed(ManifoldGrid(T,30), plane_embedding), linecolor=:green)
 
 

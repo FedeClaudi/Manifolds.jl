@@ -2,6 +2,7 @@ import Term.Style: apply_style
 using DomainSets
 import DomainSets: ×, components
 import Base.Iterators: product, flatten
+import LinearAlgebra.cross
 
 identity(x) = x
 
@@ -214,6 +215,46 @@ Base.max(D::Domain, d::Int)::Float64 = max(D)[d]
 Base.size(D::Domain) = max(D) - min(D)
 
 
+
+# ---------------------------------- normal ---------------------------------- #
+isembedded(m::Manifold) = m.ϕ != identity
+
+
+struct Normal <: AbstractManifoldObject
+    m::Manifold
+    p::Point
+    n::Vector{Float64}
+end
+
+
+function Normal(m::Manifold, p::Point)
+    @assert isembedded(m) "Cannot compute norm on a manifold not embedded in ℝ^3"
+    @assert p.m == m "p ∉ M: find a point on the target maniofold"
+    @assert length(m.ϕ(p)) > 2  "Cannot compute norm on a manifold not embedded in ℝ^3"
+    @assert dim(m) > 1 "Cannot compute norm on 1D manifolds"
+    @assert dim(m) < 3 "Cannot compute norm on >2D manifolds, for now."
+
+    @assert dim(p) == 2 "Cannot compute norm for a point p $p ∉ M (not embedded)"
+
+    # get two unit tangent vectors on the manifold at p
+    v = [1.0, 0.0]
+    w = [0.0, 1.0]
+
+    # get the push forward vecs
+    v̂ = ϕ̂(m, p) * v
+    ŵ = ϕ̂(m, p) * w
+
+    return Normal(m, m.ϕ(p), cross(v̂, ŵ))
+end
+
+Normal(m::Manifold, p::Vector{Float64}) = Normal(m, Point(m, p))
+
+Base.string(n::Normal) = "normal at p $(n.p)"
+Base.print(io::IO, n::Normal) = print(io, string(n))
+Base.show(io::IO, ::MIME"text/plain", n::Normal) = print(io, string(n))
+
+
+
 # ---------------------------------------------------------------------------- #
 #                                     POINT                                    #
 # ---------------------------------------------------------------------------- #
@@ -238,7 +279,7 @@ function Base.:+(p::Point, x::Vector{Float64})
     return Point(p.m, p.p + x)
 end
 Base.:+(x::Vector{Float64}, p::Point) = p + x
-
+Base.getindex(p::Point, i::Int64) = p.p[i]
 
 
 # ---------------------------------------------------------------------------- #
