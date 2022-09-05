@@ -16,7 +16,17 @@ fn3 = ParametrizedFunction(
 )
 
 
-ϕ(x) = embed(x, standard_torus)
+emb = Embedding(
+    "std. torus",
+    T, R3,
+    (θ₁, θ₂) -> begin
+        R, r = 0.75, .25  # radii
+        [(R + r * cos(θ₁)) * cos(θ₂), (R + r * cos(θ₁)) * sin(θ₂), r * sin(θ₁) + .2cos(2θ₂),]
+    end
+)
+
+
+ϕ(x) = embed(x, emb)
 
 
 plt0 = plot( title="T ≃ C × C")

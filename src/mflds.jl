@@ -1,5 +1,16 @@
 import Term.Style: apply_style
-using DomainSets
+import DomainSets: UnitInterval,
+            UnitCircle,
+            UnitSquare,
+            ClosedInterval,
+            Rectangle,
+            UnitSphere,
+            UnitSquare,
+            UnitCube,
+            Domain,
+            leftendpoint,
+            rightendpoint
+
 import DomainSets: ×, components
 import Base.Iterators: product, flatten
 import LinearAlgebra.cross
@@ -216,9 +227,40 @@ Base.size(D::Domain) = max(D) - min(D)
 
 
 
-# ---------------------------------- normal ---------------------------------- #
-isembedded(m::Manifold) = m.ϕ != identity
 
+
+# ---------------------------------------------------------------------------- #
+#                                     POINT                                    #
+# ---------------------------------------------------------------------------- #
+
+abstract type AbstractManifoldObject end
+
+struct Point <: AbstractManifoldObject
+    m::Manifold
+    p::Vector{Float64}
+end
+
+Point(m::Manifold, p::Float64) = Point(m, [p])
+
+dim(p::Point) = length(p.p)
+
+Base.string(p::Point) = "$(p.p) - p ∈ $(p.m.name)"
+Base.print(io::IO, p::Point) = print(io, string(p))
+Base.show(io::IO, ::MIME"text/plain", p::Point) = print(io, string(p))
+Base.length(p::Point) = length(p.p)
+Base.:*(x::Number, p::Point) = x*p.p
+function Base.:+(p::Point, x::Vector{Float64})
+    @assert length(p.p)==length(x) "Dimension mismatch"
+    return Point(p.m, p.p + x)
+end
+Base.:+(x::Vector{Float64}, p::Point) = p + x
+Base.getindex(p::Point, i::Int64) = p.p[i]
+
+
+# ---------------------------------------------------------------------------- #
+#                                    NORMAL                                    #
+# ---------------------------------------------------------------------------- #
+isembedded(m::Manifold) = m.ϕ != identity
 
 struct Normal <: AbstractManifoldObject
     m::Manifold
@@ -253,33 +295,6 @@ Base.string(n::Normal) = "normal at p $(n.p)"
 Base.print(io::IO, n::Normal) = print(io, string(n))
 Base.show(io::IO, ::MIME"text/plain", n::Normal) = print(io, string(n))
 
-
-
-# ---------------------------------------------------------------------------- #
-#                                     POINT                                    #
-# ---------------------------------------------------------------------------- #
-abstract type AbstractManifoldObject end
-
-struct Point <: AbstractManifoldObject
-    m::Manifold
-    p::Vector{Float64}
-end
-
-Point(m::Manifold, p::Float64) = Point(m, [p])
-
-dim(p::Point) = length(p.p)
-
-Base.string(p::Point) = "$(p.p) - p ∈ $(p.m.name)"
-Base.print(io::IO, p::Point) = print(io, string(p))
-Base.show(io::IO, ::MIME"text/plain", p::Point) = print(io, string(p))
-Base.length(p::Point) = length(p.p)
-Base.:*(x::Number, p::Point) = x*p.p
-function Base.:+(p::Point, x::Vector{Float64})
-    @assert length(p.p)==length(x) "Dimension mismatch"
-    return Point(p.m, p.p + x)
-end
-Base.:+(x::Vector{Float64}, p::Point) = p + x
-Base.getindex(p::Point, i::Int64) = p.p[i]
 
 
 # ---------------------------------------------------------------------------- #
