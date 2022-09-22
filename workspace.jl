@@ -2,7 +2,6 @@ import GLMakie
 
 using DifferentialGeometry
 using DifferentialGeometry.Embeddings
-import DifferentialGeometry.Manifolds: sample
 
 GLMakie.inline!(true)
 
@@ -10,5 +9,11 @@ GLMakie.inline!(true)
 m = Torus
 φ = TorusEmbedding
 
+
 N = φ(m)
-visualize_manifold(N...)
+
+
+W = apply(m, x3, φ)
+
+
+visualize_manifold(N...; color=W, cmap=:bwr)

@@ -46,7 +46,7 @@ function visualize_manifold(
 
     try
         Colorbar(fig[1, 2], pltobj, height=Relative(0.5),
-            label = string(colorby), ticklabelsize = 18,
+            label = string(colorby), ticklabelsize = 25,
             ticklabelcolor=:white, tickcolor=:white,
             labelcolor=:white, labelsize=20,
         )
@@ -60,12 +60,12 @@ function visualize_manifold(
     # style
     axis = ax.scene[OldAxis] # you can change more colors here!
     axis[:ticks][:textcolor] = :grey64
-    axis[:ticks][:textsize] = 7
+    axis[:ticks][:textsize] = 9
     axis[:frame][:linecolor] = :white
     axis[:frame][:axiscolor] = :white
     axis[:frame][:linewidth] = 0.5
     axis[:names][:textcolor] = :white
-    axis[:names][:textsize] = 10
+    axis[:names][:textsize] = 12
     zoom!(ax.scene, cameracontrols(ax.scene), 1.4)
 
     set_theme!(backgroundcolor=colorant"#23272E")

@@ -36,6 +36,8 @@ module Embeddings
 
 
 
+    (e::Embedding)(x::Vector)::Vector = e.φ(x)
+
     """ get embedding coordinates of all points in a manifold """
     function (e::Embedding)(m::DomainManifold)::Vector{Matrix}
         @assert m.d == e.d "Attempting to embed $m with incompatible embedding $e"
@@ -43,10 +45,10 @@ module Embeddings
         m.d != 2 && error("Make it generalize")
 
         # get embedded points
-        M = sample(m)
+        M::Matrix{Vector} = sample(m)
         @debug "M" M eltype(M)
 
-        pts = e.φ.(
+        pts::Matrix = e.φ.(
             M
         )
 

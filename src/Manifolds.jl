@@ -5,6 +5,7 @@ module Manifolds
 
     export Ring, Torus, Cylinder, Sphere, Mobius, Plane, Line
     export AbstractManifold, DomainManifold, ChartManifold
+    export apply
 
 
     # ---------------------------------------------------------------------------- #
@@ -42,6 +43,17 @@ module Manifolds
     Base.show(io::IO, ::MIME"text/plain", m::Manifold) = print(io, m)
 
 
+    """
+        apply(m::DomainManifold, f::Function, args...)
+
+    Apply a function `f` to each point `x` sampled from a manifold `m`.
+    """
+    function apply(m::DomainManifold, f::Function, args...)
+        M = sample(m)
+        [f(args..., p) for p in M]
+    end
+    
+
     # ---------------------------------------------------------------------------- #
     #                               DOMAIN OPERATIONS                              #
     # ---------------------------------------------------------------------------- #
@@ -58,11 +70,7 @@ module Manifolds
 
     sample(d::Rectangle; n=100)::Vector{Vector} = sample.(components(d), n)
     
-    sample(m::DomainManifold; n=25) = product(sample(m.Ω; n=n)...) |> collect
-
-
-
-
+    sample(m::DomainManifold; n=25)::Matrix{Vector} = collect.(product(sample(m.Ω; n=n)...) |> collect)
 
 
     # ------------------------------------ 1D ------------------------------------ #
