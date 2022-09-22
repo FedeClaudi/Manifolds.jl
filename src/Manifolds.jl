@@ -70,7 +70,7 @@ module Manifolds
 
     sample(d::Rectangle; n=100)::Vector{Vector} = sample.(components(d), n)
     
-    sample(m::DomainManifold; n=25)::Matrix{Vector} = collect.(product(sample(m.Ω; n=n)...) |> collect)
+    sample(m::DomainManifold; n=48)::Matrix{Vector} = collect.(product(sample(m.Ω; n=n)...) |> collect)
 
 
     # ------------------------------------ 1D ------------------------------------ #
