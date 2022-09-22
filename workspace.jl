@@ -1,8 +1,11 @@
-using DifferentialGeometry
-using DomainSets
+import GLMakie
 
+using DifferentialGeometry
 using DifferentialGeometry.Embeddings
 import DifferentialGeometry.Manifolds: sample
+
+GLMakie.inline!(true)
+
 
 m = Torus
 φ = TorusEmbedding

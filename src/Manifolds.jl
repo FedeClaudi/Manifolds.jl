@@ -1,6 +1,7 @@
 module Manifolds
     using DomainSets
     using DomainSets: ×
+    import Base.Iterators: product
 
     export Ring, Torus, Cylinder, Sphere, Mobius, Plane, Line
     export AbstractManifold, DomainManifold, ChartManifold
@@ -56,7 +57,11 @@ module Manifolds
     end
 
     sample(d::Rectangle; n=100)::Vector{Vector} = sample.(components(d), n)
-    sample(m::DomainManifold; n=25) = sample(m.Ω; n=n)
+    
+    sample(m::DomainManifold; n=25) = product(sample(m.Ω; n=n)...) |> collect
+
+
+
 
 
 

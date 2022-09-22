@@ -1,6 +1,4 @@
 module Embeddings
-    import Base.Iterators: product
-
     import ..Manifolds: DomainManifold, sample
 
     export Embedding, TorusEmbedding, SphereEmbedding, CylinderEmbedding, MobiusEmbedding
@@ -45,14 +43,14 @@ module Embeddings
         m.d != 2 && error("Make it generalize")
 
         # get embedded points
-        M::Matrix = product(sample(m; n=25)...) |> collect
+        M = sample(m)
         @debug "M" M eltype(M)
+
         pts = e.φ.(
             M
         )
 
         @debug "Got points" pts size(pts) eltype(pts) size(pts[1])
-
         return map(
             d ->  [p[d] for p in pts],
             1:length(pts[1])
