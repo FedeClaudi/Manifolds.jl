@@ -3,31 +3,54 @@ using Colors
 # import GLMakie.Makie: Vec3f
 
 
+function shadow(X, Y, Z, ax)
+    surface!(
+        ax,
+        X, Y, Z;
+        shading=false,
+        transparency=true,
+        color=fill((:grey20, 1),100,100),
+    )
+end
+
+function xshadow(X, Y, Z, ax)
+    x0 = abs(minimum(X))
+    X = zeros(size(X)) .- x0 * 1.5
+    shadow(X, Y, Z, ax)
+end
+
+function yshadow(X, Y, Z, ax)
+    x0 = abs(minimum(Y))
+    Y = zeros(size(Y)) .- x0 * 1.5
+    shadow(X, Y, Z, ax)
+end
+
+function zshadow(X, Y, Z, ax)
+    x0 = abs(minimum(Z))
+    Z = zeros(size(Z)) .- x0 * 1.1
+    shadow(X .* 0.95 .- .05, Y .* 0.95, Z, ax)
+end
+
+
+
+
+
 function visualize_manifold(
     X::Matrix,
     Y::Matrix,
     Z::Matrix;
     color=nothing,
     cmap=Reverse(:bone_1),
-    colorby::Symbol=:d,
+    colorby=nothing,
     transparency::Bool=false,
 )
-    
-    if isnothing(color)
-        if colorby == :d
-            color = sqrt.(X .^ 2 .+ Y .^ 2 .+ Z .^ 2)
-        elseif colorby == :z
-            color = Z
-        else
-            error("Unrecognized colorby value $colorby")
-        end
-    else
-        colorby=:W
-    end
+    color = isnothing(color) ? fill(colorant"#D1D6F6", 100, 100) : color
+
 
     # plot
     fig = Figure(resolution=(1200, 1200), viewmode = :fitzoom)
     ax = LScene(fig[1, 1], 
+            scenewk=(; padding=(0, 0,0))
             # scenekw = (; limits=Rect3f(Vec3f(-1, -1, -1),Vec3f(2, 2, 2)))
         )
 
@@ -39,19 +62,15 @@ function visualize_manifold(
         colormap=cmap,
         transparency=transparency,
     )
-    wireframe!(ax, X, Y, Z; transparency=transparency, shading=false, color=:black, linewidth=0.5)
+    wireframe!(ax, X, Y, Z; transparency=transparency, shading=false, color=:grey16, linewidth=.75, overdraw=false, ssao=true)
 
     # colorbar
-    
-
     try
-        Colorbar(fig[1, 2], pltobj, height=Relative(0.5),
+        isnothing(colorby) || Colorbar(fig[1, 2], pltobj, height=Relative(0.5),
             label = string(colorby), ticklabelsize = 25,
             ticklabelcolor=:white, tickcolor=:white,
             labelcolor=:white, labelsize=20,
         )
-        colsize!(fig.layout, 1, Aspect(1, 0.8))
-        colsize!(fig.layout, 2, Aspect(1, 0.1))
     catch
         nothing
     end

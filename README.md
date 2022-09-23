@@ -12,6 +12,11 @@
 ### Basic
 - [ ] Test on curves
 - [ ] `sample(m)` allow for different sampling over each dimension
+- [ ] parametrized curve on the manifold
+
+### Visuals
+- [ ] Gauss map
+- [ ] Weingarten map
 
 ### Intermediate
 - [ ] tangent vectors + visualization

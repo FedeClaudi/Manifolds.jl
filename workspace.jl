@@ -12,4 +12,5 @@ m = Torus
 
 N = φ(m)
 W = apply(m, area_deformation, φ)
-visualize_manifold(N...; color=W, cmap=:inferno)
+visualize_manifold(N...; color=nothing, cmap=:inferno)
+println("done")
