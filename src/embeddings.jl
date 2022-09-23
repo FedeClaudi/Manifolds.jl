@@ -1,4 +1,9 @@
 module Embeddings
+    import LinearAlgebra: cross as ×
+    import LinearAlgebra: norm
+    import ForwardDiff: jacobian
+
+    import DifferentialGeometry: Curve
     import ..Manifolds: DomainManifold, sample
 
     export Embedding, TorusEmbedding, SphereEmbedding, CylinderEmbedding, MobiusEmbedding
@@ -45,8 +50,9 @@ module Embeddings
         m.d != 2 && error("Make it generalize")
 
         # get embedded points
-        M::Matrix{Vector} = sample(m)
+        M::Matrix{Vector} = sample(m; n=64)
         @debug "M" M eltype(M)
+
 
         pts::Matrix = e.φ.(
             M
@@ -55,6 +61,28 @@ module Embeddings
         @debug "Got points" pts size(pts) eltype(pts) size(pts[1])
         return map(
             d ->  [p[d] for p in pts],
+            1:length(pts[1])
+        )
+    end
+
+    """
+        Embed a curve
+    """
+    function (e::Embedding)(γ::Curve; Δ=0.01)::Vector{Vector}
+        curve::Vector{Vector} = γ.(0:0.001:1.0)  # points on manifold
+        pts::Vector = e.φ.(curve)                # points on the embedded mfl
+
+        # get normal at all points along the curve
+        normal(x) = begin
+            j = jacobian(e, x)
+            n = ×(eachcol(j)...)
+            -n ./ (norm(n) + eps())
+        end
+        normals = map(
+            x -> normal(x), curve    
+        )
+        return map(
+            d ->  [p[d] + Δ * n[d] for (p, n) in zip(pts, normals)],
             1:length(pts[1])
         )
     end

@@ -84,9 +84,10 @@ given an embedding map φ: M → N ⊆ ℝᵏ
 function normal end
 
 function normal(φ::Embedding, x::AbstractVector)::Vector
-    @assert φ.d == 2 "Cannot compute normal vector for embedding: $φ"
-    n = ∂φ∂x(φ, 1, x) × ∂φ∂x(φ, 1, x)
-    -n ./ norm(n)
+    @assert φ.d == 2 && φ.k == 3 "Cannot compute normal vector for embedding: $φ"
+    j = J(φ, x)
+    n = ×(eachcol(j)...)
+    -n ./ (norm(n) + eps())
 end
 
 """

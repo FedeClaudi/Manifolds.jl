@@ -4,6 +4,9 @@ module DifferentialGeometry
     export Ring, Torus, Cylinder, Sphere, Mobius, Plane, Line
     export apply, sample
 
+    include("curves.jl")
+    export Curve
+
     include("embeddings.jl")
     using .Embeddings
     export Embedding
@@ -13,6 +16,6 @@ module DifferentialGeometry
     export u1, u2, u3, x1, x2, x3
 
     include("visuals.jl")
-    export visualize_manifold
+    export visualize_manifold, visualize_curve!
 
 end

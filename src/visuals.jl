@@ -44,7 +44,8 @@ function visualize_manifold(
     colorby=nothing,
     transparency::Bool=false,
 )
-    color = isnothing(color) ? fill(colorant"#D1D6F6", 100, 100) : color
+    (!isnothing(color) && !isa(color, Symbol) && isnothing(colorby)) && (colorby=:w)
+    color = isnothing(color) ? fill(colorant"#D1D6F6", 100, 100) : fill(color, 100, 100)
 
 
     # plot
@@ -61,8 +62,10 @@ function visualize_manifold(
         color=color,
         colormap=cmap,
         transparency=transparency,
+        ssao=true,
+
     )
-    wireframe!(ax, X, Y, Z; transparency=transparency, shading=false, color=:grey16, linewidth=.75, overdraw=false, ssao=true)
+    # wireframe!(ax, X, Y, Z; transparency=transparency, shading=false, color=:grey16, linewidth=.75, overdraw=false, ssao=true)
 
     # colorbar
     try
@@ -88,5 +91,12 @@ function visualize_manifold(
     zoom!(ax.scene, cameracontrols(ax.scene), 1.4)
 
     set_theme!(backgroundcolor=colorant"#23272E")
-    display(fig)
+    return fig, ax
+end
+
+
+
+
+function visualize_curve!(ax, X::Vector, Y::Vector, Z::Vector; color=:black, lw=5, transparency=false)
+    lines!(ax, X, Y, Z; linewidth=lw, color=color, transparency=transparency)
 end
