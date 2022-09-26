@@ -53,7 +53,6 @@ module Embeddings
         M::Matrix{Vector} = sample(m; n=64)
         @debug "M" M eltype(M)
 
-
         pts::Matrix = e.φ.(
             M
         )
@@ -65,6 +64,7 @@ module Embeddings
         )
     end
 
+    
     """
         Embed a curve
     """

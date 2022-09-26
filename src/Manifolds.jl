@@ -70,7 +70,10 @@ module Manifolds
 
     sample(d::Rectangle; n=100)::Vector{Vector} = sample.(components(d), n)
     
-    sample(m::DomainManifold; n=48)::Matrix{Vector} = collect.(product(sample(m.Ω; n=n)...) |> collect)
+    sample(m::DomainManifold; n=64)::Matrix{Vector} = collect.(product(sample(m.Ω; n=n)...) |> collect)
+    # sample(m::DomainManifold; n=48)::Matrix{Float64} = Matrix(
+    #     hcat([[x...] for x in zip(sample(m.Ω; n=n)...)]...)'
+    # )
 
 
     # ------------------------------------ 1D ------------------------------------ #
