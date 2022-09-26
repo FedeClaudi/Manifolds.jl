@@ -24,5 +24,21 @@ N = φ(m)
 fig, ax = visualize_manifold(N...; color=nothing, cmap=:inferno, transparency=false)
 visualize_curve!(ax, γ...; transparency=true)
 
+
+αs = [1, 1]
+for p in sample(m; n=10)
+    v = 
+
+    visualize_tangent_vector(
+        ax, TangentVector(p, [1, 0]), φ; normalize=true
+    )
+    visualize_tangent_vector(
+        ax, TangentVector(p, [0, 1]), φ; color=:red, normalize=true
+    )
+end
+
+#TODO vector field
+
+
 display(fig)
 println("done")

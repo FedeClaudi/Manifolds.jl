@@ -5,6 +5,7 @@ module Embeddings
 
     import DifferentialGeometry: Curve
     import ..Manifolds: DomainManifold, sample
+    import ..TangentVectors: TangentVector
 
     export Embedding, TorusEmbedding, SphereEmbedding, CylinderEmbedding, MobiusEmbedding
 
@@ -85,6 +86,14 @@ module Embeddings
             d ->  [p[d] + Δ * n[d] for (p, n) in zip(pts, normals)],
             1:length(pts[1])
         )
+    end
+
+    """
+        Embed a tangent vector
+    """
+    function (e::Embedding)(v::TangentVector)::Vector
+        J = jacobian(e, v.p)
+        return J * v.α
     end
 
     # ---------------------------------------------------------------------------- #

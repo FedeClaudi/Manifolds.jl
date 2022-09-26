@@ -101,3 +101,26 @@ end
 function visualize_curve!(ax, X::Vector, Y::Vector, Z::Vector; color=:black, lw=5, transparency=false)
     lines!(ax, X, Y, Z; linewidth=lw, color=color, transparency=transparency, fxaa=true,)
 end
+
+function visualize_tangent_vector(ax, v::TangentVector, φ::Embedding; 
+        lengthscale=0.2,
+        linewidth=0.025,    
+        color=:black,
+        normalize=false,
+    )
+    v̂ = φ(v) 
+    v̂ = normalize ? v̂ ./ norm(v̂) : v̂
+    p̂ = φ(v.p)
+
+    arrows!(
+        ax,
+        collect2vecs(p̂)...,
+        collect2vecs(v̂)...,
+        shading=false,
+        arrowsize=[.1, .1, .1],
+        lengthscale=lengthscale,
+        linewidth=linewidth,
+        linecolor=color,
+        arrowcolor=color,
+    )
+end
