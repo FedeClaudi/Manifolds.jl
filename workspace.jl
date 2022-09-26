@@ -16,12 +16,12 @@ m = DifferentialGeometry.Manifolds.Torus
 γ = φ(γ; Δ=0.01)
 
 N = φ(m)
-W = apply(m, normal, φ)
+# W = apply(m, normal, φ)
 
 
 
 
-fig, ax = visualize_manifold(N...; color=nothing, cmap=:inferno, transparency=false, Δ=W)
+fig, ax = visualize_manifold(N...; color=nothing, cmap=:inferno, transparency=false)
 visualize_curve!(ax, γ...; transparency=true)
 
 display(fig)

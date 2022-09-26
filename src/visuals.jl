@@ -43,7 +43,6 @@ function visualize_manifold(
     cmap=Reverse(:bone_1),
     colorby=nothing,
     transparency::Bool=false,
-    Δ::Union{Nothing, Matrix}=nothing,
 )
     (!isnothing(color) && !isa(color, Symbol) && isnothing(colorby)) && (colorby=:w)
     color = isnothing(color) ? fill(colorant"#D1D6F6", 100, 100) : fill(color, 100, 100)
@@ -56,37 +55,18 @@ function visualize_manifold(
             # scenekw = (; limits=Rect3f(Vec3f(-1, -1, -1),Vec3f(2, 2, 2)))
         )
 
-    !isnothing(Δ) && begin
-        Δx = first.(Δ)
-        Δy = getindex.(Δ, 2)
-        Δz = last.(Δ)
-        _X, _Y, _Z = X .+ 0.001*Δx, Y .+ 0.001*Δy, Z .+ 0.001*Δz
-
-        surface!(
-            ax,
-            _X, _Y, _Z;
-            shading=false,
-            color=fill(:black, 100, 100),
-            transparency=transparency,
-            depth_shift = 0.99f0
-        )
-    end
-
-
-
     pltobj = surface!(
         ax,
         X, Y, Z;
         shading=false,
-        color=fill(:white, 100, 100),
-        # colormap=cmap,
+        color=color,
+        colormap=cmap,
         transparency=transparency,
-        # ssao=true,
-        # fxaa=true,
-        # depth_shift = 0.01f0
+        ssao=true,
+        fxaa=true,
     )
 
-    # wireframe!(ax, X, Y, Z; transparency=transparency, shading=false, color=:grey16, fxaa=true, linewidth=.75, overdraw=false, ssao=true)
+    wireframe!(ax, X, Y, Z; transparency=transparency, shading=false, color=:grey16, fxaa=true, linewidth=.75, overdraw=false, ssao=true)
 
     # colorbar
     try
