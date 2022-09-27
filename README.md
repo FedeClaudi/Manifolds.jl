@@ -19,8 +19,8 @@
 - [ ] Weingarten map
 
 ### Intermediate
-- [ ] tangent vectors + visualization
-- [ ] tangent vector fields
+- [x] tangent vectors + visualization
+- [x] tangent vector fields
 - [ ] parallel transport?
 - [ ] some n-forms stuff?
 
