@@ -3,7 +3,7 @@ struct Curve
     γ::Function
 
     function Curve(γ::Function)
-        @assert first(methods(γ)).nargs <= 2 "γ can only have one argument i ∈ [0, 1] | $(first(methods(γ)).nargs)"
+        @assert nargs(γ) == 1 "γ can only have one argument i ∈ [0, 1] | $(nargs(γ))"
         
         x = γ(1.0)
         @assert x isa AbstractVector "γ should output vectors"

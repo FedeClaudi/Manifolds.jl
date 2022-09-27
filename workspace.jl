@@ -2,6 +2,7 @@ import GLMakie
 
 using DifferentialGeometry
 using DifferentialGeometry.Embeddings
+import DifferentialGeometry.Manifolds: sample
 
 GLMakie.inline!(true)
 
@@ -22,20 +23,15 @@ N = φ(m)
 
 
 fig, ax = visualize_manifold(N...; color=nothing, cmap=:inferno, transparency=false)
-visualize_curve!(ax, γ...; transparency=true)
+# visualize_curve!(ax, γ...; transparency=true)
 
 
-αs = [1, 1]
-for p in sample(m; n=10)
-    v = 
-
-    visualize_tangent_vector(
-        ax, TangentVector(p, [1, 0]), φ; normalize=true
-    )
-    visualize_tangent_vector(
-        ax, TangentVector(p, [0, 1]), φ; color=:red, normalize=true
-    )
-end
+# ---------------------- visualize tangent vector field ---------------------- #
+P = sample(m; n=12, flat=true)
+tf = TangentVectorField(
+    P, (x) -> [sin(1-2x[1]), 0.0]
+) |> φ
+visualize_tangent_vectorfield(ax, φ.(P), tf)
 
 #TODO vector field
 

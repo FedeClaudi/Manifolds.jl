@@ -3,6 +3,8 @@ module Manifolds
     using DomainSets: ×
     import Base.Iterators: product
 
+    import DifferentialGeometry: flatten
+
     export Ring, Torus, Cylinder, Sphere, Mobius, Plane, Line
     export AbstractManifold, DomainManifold, ChartManifold
     export apply
@@ -70,10 +72,11 @@ module Manifolds
 
     sample(d::Rectangle; n=100)::Vector{Vector} = sample.(components(d), n)
     
-    sample(m::DomainManifold; n=64)::Matrix{Vector} = collect.(product(sample(m.Ω; n=n)...) |> collect)
-    # sample(m::DomainManifold; n=48)::Matrix{Float64} = Matrix(
-    #     hcat([[x...] for x in zip(sample(m.Ω; n=n)...)]...)'
-    # )
+    function sample(m::DomainManifold; n=64, flat = false)::Union{Matrix, Vector}
+        pts = collect.(product(sample(m.Ω; n=n)...) |> collect)
+        flat || return pts
+        return flatten(pts)
+    end
 
 
     # ------------------------------------ 1D ------------------------------------ #

@@ -102,20 +102,27 @@ function visualize_curve!(ax, X::Vector, Y::Vector, Z::Vector; color=:black, lw=
     lines!(ax, X, Y, Z; linewidth=lw, color=color, transparency=transparency, fxaa=true,)
 end
 
-function visualize_tangent_vector(ax, v::TangentVector, φ::Embedding; 
+
+# ---------------------------------------------------------------------------- #
+#                                TANGENT VECTORS                               #
+# ---------------------------------------------------------------------------- #
+
+"""
+Visualize a tangent vector v at a point p. 
+Can be already embedded
+"""
+function visualize_tangent_vector(ax, p::Vector, v::Vector; 
         lengthscale=0.2,
         linewidth=0.025,    
         color=:black,
         normalize=false,
     )
-    v̂ = φ(v) 
-    v̂ = normalize ? v̂ ./ norm(v̂) : v̂
-    p̂ = φ(v.p)
 
+    v = normalize ? v ./ norm(v) : v
     arrows!(
         ax,
-        collect2vecs(p̂)...,
-        collect2vecs(v̂)...,
+        collect2vecs(p)...,
+        collect2vecs(v)...,
         shading=false,
         arrowsize=[.1, .1, .1],
         lengthscale=lengthscale,
@@ -123,4 +130,12 @@ function visualize_tangent_vector(ax, v::TangentVector, φ::Embedding;
         linecolor=color,
         arrowcolor=color,
     )
+end
+
+
+
+function visualize_tangent_vectorfield(ax, P::Vector, V::Vector; 
+        kwargs...
+    )
+    visualize_tangent_vector.(ax, P, V)
 end

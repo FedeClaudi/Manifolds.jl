@@ -3,9 +3,9 @@ module Embeddings
     import LinearAlgebra: norm
     import ForwardDiff: jacobian
 
-    import DifferentialGeometry: Curve
+    import DifferentialGeometry: Curve, nargs
     import ..Manifolds: DomainManifold, sample
-    import ..TangentVectors: TangentVector
+    import ..TangentVectors: TangentVector, TangentVectorField
 
     export Embedding, TorusEmbedding, SphereEmbedding, CylinderEmbedding, MobiusEmbedding
 
@@ -28,7 +28,7 @@ module Embeddings
         φ::Function
         
         function Embedding(φ::Function)
-            d = first(methods(φ)).nargs
+            d = nargs(φ)
             k = length(φ(zeros(d)))
 
             @assert k >= d "Embedding dimensionaliy $k too small for manifold with d=$d"
@@ -95,6 +95,14 @@ module Embeddings
         J = jacobian(e, v.p)
         return J * v.α
     end
+
+    """
+        Embed a tangent vector field
+    """
+    function (e::Embedding)(tf::TangentVectorField)::Vector{Vector}
+        e.(tf.vecs)
+    end
+
 
     # ---------------------------------------------------------------------------- #
     #                              STANDARD EMBEDDINGS                             #
