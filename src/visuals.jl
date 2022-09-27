@@ -64,6 +64,8 @@ function visualize_manifold(
         transparency=transparency,
         ssao=true,
         fxaa=true,
+        specular = Vec3f0(-1e-3), 
+        shininess = -4f0,
     )
 
     wireframe!(ax, X, Y, Z; transparency=transparency, shading=false, color=:grey16, fxaa=true, linewidth=.75, overdraw=false, ssao=true)
@@ -92,6 +94,7 @@ function visualize_manifold(
     zoom!(ax.scene, cameracontrols(ax.scene), 1.4)
 
     set_theme!(backgroundcolor=colorant"#23272E")
+
     return fig, ax
 end
 

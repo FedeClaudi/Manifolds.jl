@@ -70,7 +70,11 @@ module Manifolds
         range(leftendpoint(i), rightendpoint(i), length=n) |> collect
     end
 
-    sample(d::Rectangle; n=100)::Vector{Vector} = sample.(components(d), n)
+    function sample(d::Rectangle; n=100)::Vector{Vector}
+        Ω = components(d)
+        N = n isa Int ? repeat([n], length(Ω)) : n
+        [sample(ω, n) for (ω, n) in zip(Ω, N)]
+    end
     
     function sample(m::DomainManifold; n=64, flat = false)::Union{Matrix, Vector}
         pts = collect.(product(sample(m.Ω; n=n)...) |> collect)

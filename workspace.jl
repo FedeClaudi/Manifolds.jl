@@ -16,7 +16,7 @@ m = DifferentialGeometry.Manifolds.Torus
 )
 γ = φ(γ; Δ=0.01)
 
-N = φ(m)
+N = φ(m; n=(24, 48))
 # W = apply(m, normal, φ)
 
 
@@ -27,13 +27,12 @@ fig, ax = visualize_manifold(N...; color=nothing, cmap=:inferno, transparency=fa
 
 
 # ---------------------- visualize tangent vector field ---------------------- #
-P = sample(m; n=12, flat=true)
-tf = TangentVectorField(
-    P, (x) -> [sin(1-2x[1]), 0.0]
-) |> φ
-visualize_tangent_vectorfield(ax, φ.(P), tf)
+# P = sample(m; n=(12, 24), flat=true)
+# tf = TangentVectorField(
+#     P, (x) -> [sin(1-2x[1]), 0.0]
+# ) |> φ
+# visualize_tangent_vectorfield(ax, φ.(P), tf)
 
-#TODO vector field
 
 
 display(fig)
