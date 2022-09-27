@@ -1,6 +1,6 @@
-using GLMakie
+using CairoMakie, GLMakie
+GLMakie.activate!() # just in case
 using Colors
-# import GLMakie.Makie: Vec3f
 
 
 function shadow(X, Y, Z, ax)
@@ -55,6 +55,16 @@ function visualize_manifold(
             # scenekw = (; limits=Rect3f(Vec3f(-1, -1, -1),Vec3f(2, 2, 2)))
         )
 
+    # m = CairoMakie.surface2mesh(X, Y, Z)
+    # m2 = deepcopy(m)
+    # scale = 0.0001 * m.position |> norm |> maximum
+    # @. m2.position -= scale * m.normals
+
+    # mesh!(ax, m2, color = :black, 
+    #         shading=false, overdraw=false,
+    #         ssao=false, depth_shift=.1,
+    #         )
+
     pltobj = surface!(
         ax,
         X, Y, Z;
@@ -68,8 +78,13 @@ function visualize_manifold(
         shininess = -4f0,
     )
 
-    wireframe!(ax, X, Y, Z; transparency=transparency, shading=false, color=:grey16, fxaa=true, linewidth=.75, overdraw=false, ssao=true)
+    w= wireframe!(ax, X, Y, Z; 
+            transparency=transparency, shading=false, 
+            color=:black, fxaa=true, linewidth=.75, 
+            overdraw=false, ssao=true
+    )
 
+    
     # colorbar
     try
         isnothing(colorby) || Colorbar(fig[1, 2], pltobj, height=Relative(0.5),
@@ -94,7 +109,6 @@ function visualize_manifold(
     zoom!(ax.scene, cameracontrols(ax.scene), 1.4)
 
     set_theme!(backgroundcolor=colorant"#23272E")
-
     return fig, ax
 end
 

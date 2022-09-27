@@ -37,3 +37,4 @@ fig, ax = visualize_manifold(N...; color=nothing, cmap=:inferno, transparency=fa
 
 display(fig)
 println("done")
+
