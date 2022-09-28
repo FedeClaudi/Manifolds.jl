@@ -32,16 +32,32 @@ module TangentVectors
         a vector of α weights for each p ∈ M.
         """
         function TangentVectorField(m::DomainManifold, ψ::Function)
+            # check that the vector field map is correctly defined.
             @assert nargs(ψ)==1 "Vector field function should accept a single ::Vector argument"
 
-            x = Base.return_types(ψ, (Vector))[1]
-            @assert x == Vector "Vector field function should return a vector, not $(typeof(x))"
+            x = ψ(ones(m.d))
+            @assert x isa Vector "Vector field function should return a vector, not $(typeof(x))"
+            @assert length(x) == m.d  "ψ should return a vector with length equal to manifold's intrinsic dimensionality $(m.d)"
+            @assert eltype(x) == Number "ψ should return a vector of numbers, not: $(eltype(x))"
 
             return new(
                 m, 
                 p -> TangentVector(p, ψ(p))
             )
         end
+
+
+        """
+            TangentVectorField(m::DomainManifold, α::Vector)
+
+        Construct a constant vector field were all vectors have the 
+        same weights α. 
+        """
+        TangentVectorField(m::DomainManifold, α::Vector) =  new(
+            m,    
+            p -> TangentVector(p, α)
+        )
+
     end
 
     Base.string(tf::TangentVectorField) = "Tangent Vector field, ψ: $(tf.ψ))"
@@ -51,16 +67,5 @@ module TangentVectors
 
 
 
-
-    """
-        TangentVectorField(m::DomainManifold, α::Vector)
-
-    Construct a constant vector field were all vectors have the 
-    same weights α. 
-    """
-    TangentVectorField(m::DomainManifold, α::Vector) = TangentVectorField(
-        m,    
-        p -> TangentVector(p, α)
-    )
 
 end

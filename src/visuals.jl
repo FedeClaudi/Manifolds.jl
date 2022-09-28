@@ -138,14 +138,14 @@ end
 Visualize a tangent vector v at a point p. 
 Can be already embedded
 """
-function visualize_tangent_vector(ax, p::Vector, v::Vector; 
+function visualize_tangent_vector(ax,v::NamedTuple; 
         lengthscale=0.2,
         linewidth=0.025,    
         color=:black,
         normalize=false,
         arrowsize=Vec3f0(0.05, 0.05, 0.05),
     )
-
+    p::Vector, v::Vector = v.p, v.v
     v = normalize ? v ./ norm(v) : v
     arrows!(
         ax,
@@ -162,8 +162,8 @@ end
 
 
 
-function visualize_tangent_vectorfield(ax, P::Vector, V::Vector; 
+function visualize_tangent_vectorfield(ax, V::Vector{NamedTuple}; 
         kwargs...
     )
-    visualize_tangent_vector.(ax, P, V; kwargs...)
+    visualize_tangent_vector.(ax, V; kwargs...)
 end

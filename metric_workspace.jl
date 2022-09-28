@@ -25,11 +25,10 @@ W = reshape(W, shape)
 tf_x = TangentVectorField(m, X) |> φ
 tf_y = TangentVectorField(m, Y) |> φ
 
-
 # visualize metric and vector fields
 fig, ax = visualize_manifold(N...; color=W, cmap=:inferno, transparency=false)
-visualize_tangent_vectorfield(ax, φ.(P), tf_x; lengthscale=0.02, linewidth=0.01, color=:red)
-visualize_tangent_vectorfield(ax, φ.(P), tf_y; lengthscale=0.02, linewidth=0.01, color=:green)
+visualize_tangent_vectorfield(ax, tf_x; lengthscale=0.02, linewidth=0.01, color=:red)
+visualize_tangent_vectorfield(ax, tf_y; lengthscale=0.02, linewidth=0.01, color=:green)
 display(fig)
 
 

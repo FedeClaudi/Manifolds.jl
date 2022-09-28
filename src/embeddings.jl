@@ -90,17 +90,20 @@ module Embeddings
     end
 
     """
-        Embed a tangent vector
+        Embed a tangent vector.
+        Each embedded vector is represented by a tuple
+        representing the empbedded point φ(p) and the 
+        pushed forward vector Jv. 
     """
-    function (e::Embedding)(v::TangentVector)::Vector
+    function (e::Embedding)(v::TangentVector)::NamedTuple
         J = jacobian(e, v.p)
-        return J * v.α
+        return (; p=e(v.p), v=J * v.α)
     end
 
     """
         Embed a tangent vector field
     """
-    function (e::Embedding)(tf::TangentVectorField; n=48)::Vector{Vector}
+    function (e::Embedding)(tf::TangentVectorField; n=12)::Vector{NamedTuple}
         pts = sample(tf.m, n=n; flat=true)
         vecs::Vector{TangentVector} = tf.ψ.(pts)
         e.(vecs)
