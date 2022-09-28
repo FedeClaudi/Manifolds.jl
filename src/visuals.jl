@@ -1,7 +1,10 @@
-using CairoMakie, GLMakie
-GLMakie.activate!() # just in case
+using GLMakie
 using Colors
 
+# using CairoMakie
+
+
+include("visual_primitives.jl")
 
 function shadow(X, Y, Z, ax)
     surface!(
@@ -45,8 +48,10 @@ function visualize_manifold(
     transparency::Bool=false,
 )
     (!isnothing(color) && !isa(color, Symbol) && isnothing(colorby)) && (colorby=:w)
-    color = isnothing(color) ? fill(colorant"#D1D6F6", 100, 100) : fill(color, 100, 100)
-
+    
+    color isa Symbol && (color = fill(color, 100, 100))
+    isnothing(color) && ( color = fill(colorant"#D1D6F6", 100, 100)) 
+    @assert color isa Matrix "Color should be a matrix with shape: $(size(X))"
 
     # plot
     fig = Figure(resolution=(1200, 1200), viewmode = :fitzoom)
@@ -57,14 +62,22 @@ function visualize_manifold(
 
     # m = CairoMakie.surface2mesh(X, Y, Z)
     # m2 = deepcopy(m)
-    # scale = 0.0001 * m.position |> norm |> maximum
+    # scale = 0.001 * m.position |> norm |> maximum
     # @. m2.position -= scale * m.normals
+
 
     # mesh!(ax, m2, color = :black, 
     #         shading=false, overdraw=false,
     #         ssao=false, depth_shift=.1,
     #         )
 
+    # mesh!(ax, m, color = colorant"#D1D6F6", 
+    #         shading=false, overdraw=false,
+    #         ssao=false, depth_shift=0,
+    #     )
+        
+
+    n = ()
     pltobj = surface!(
         ax,
         X, Y, Z;
@@ -81,6 +94,7 @@ function visualize_manifold(
     w= wireframe!(ax, X, Y, Z; 
             transparency=transparency, shading=false, 
             color=:black, fxaa=true, linewidth=.75, 
+            depth_shift=.4,
             overdraw=false, ssao=true
     )
 

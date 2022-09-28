@@ -8,6 +8,7 @@ module Embeddings
     import ..TangentVectors: TangentVector, TangentVectorField
 
     export Embedding, TorusEmbedding, SphereEmbedding, CylinderEmbedding, MobiusEmbedding
+    export PlaneEmbedding
 
     ⋅ = *  # for aesthetics
 
@@ -28,7 +29,7 @@ module Embeddings
         φ::Function
         
         function Embedding(φ::Function)
-            d = nargs(φ)
+            d = nargs(φ)+1
             k = length(φ(zeros(d)))
 
             @assert k >= d "Embedding dimensionaliy $k too small for manifold with d=$d"
@@ -118,6 +119,16 @@ module Embeddings
             end
     )
 
+    PlaneEmbedding = Embedding( 
+        (p) -> begin
+                x, y = p
+                return [
+                    x,
+                    y,
+                    1-x*y
+                ]
+            end
+    )
 
 
     TorusEmbedding = Embedding(
