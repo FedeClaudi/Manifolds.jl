@@ -15,20 +15,22 @@
 ## TODO
 ### Basic
 - [ ] Test on curves
-
+- [ ] curvature through the riemannian metric
 
 ### Visuals
 - [ ] Gauss map
 - [ ] Weingarten map
+
 
 ### Intermediate
 - [ ] parallel transport?
 - [ ] some n-forms stuff?
 
 ### Advanced
-- [ ] define/show metircs
+- [x] define/show metircs
 - [ ] Laplace Beltrami operator: https://en.wikipedia.org/wiki/Laplace%E2%80%93Beltrami_operator
 see also Sec 8.3 here: http://alice.loria.fr/publications/papers/2007/SigCourseParam/param-course.pdf
+- [ ] periodic basis eigenfunctions of laplace beltrami operator
 
 - [ ] global parametrization, see Sec 8: http://alice.loria.fr/publications/papers/2007/SigCourseParam/param-course.pdf
 
