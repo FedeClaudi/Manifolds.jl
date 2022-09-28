@@ -111,3 +111,14 @@ function area_deformation(φ::Embedding, p::AbstractVector)::Float64
     λ₁, λ₂ = metric_deformation(φ, p)
     λ₁ * λ₂
 end
+
+"""
+    g(φ::Embedding, p::Vector, X::Vector, Y::Vector)::Float64
+
+Riemannian metric between two tangent vectors `X`, `Y` ∈ TₚM induced
+by the embedding φ. 
+
+Here `g` is computed witht the first fundamental form 𝐈.
+Alternatively, the Jacobian J can be used: (J*X)' * (J*Y)
+"""
+g(φ::Embedding, X::Vector, Y::Vector, p::Vector)::Float64 = X' * 𝐈(φ, p) * Y

@@ -20,6 +20,7 @@ module DifferentialGeometry
     include("geometry.jl")
     export J, ∂φ∂x, 𝐈, 𝐈𝐈, normal, metric_deformation, area_deformation
     export u1, u2, u3, x1, x2, x3
+    export g
 
     include("visuals.jl")
     export visualize_manifold, visualize_curve!, visualize_tangent_vector, visualize_tangent_vectorfield

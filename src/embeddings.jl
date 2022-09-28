@@ -100,8 +100,10 @@ module Embeddings
     """
         Embed a tangent vector field
     """
-    function (e::Embedding)(tf::TangentVectorField)::Vector{Vector}
-        e.(tf.vecs)
+    function (e::Embedding)(tf::TangentVectorField; n=48)::Vector{Vector}
+        pts = sample(tf.m, n=n; flat=true)
+        vecs::Vector{TangentVector} = tf.ψ.(pts)
+        e.(vecs)
     end
 
 
@@ -125,7 +127,7 @@ module Embeddings
                 return [
                     x,
                     y,
-                    1-x*y
+                    sin(2π*x) * sin(2π*y) / 2
                 ]
             end
     )

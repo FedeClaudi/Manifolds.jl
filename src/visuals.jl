@@ -85,17 +85,13 @@ function visualize_manifold(
         color=color,
         colormap=cmap,
         transparency=transparency,
-        ssao=true,
-        fxaa=true,
-        specular = Vec3f0(-1e-3), 
-        shininess = -4f0,
+        fxaa=false, ssao=false,
     )
 
     w= wireframe!(ax, X, Y, Z; 
             transparency=transparency, shading=false, 
-            color=:black, fxaa=true, linewidth=.75, 
-            depth_shift=.4,
-            overdraw=false, ssao=true
+            color=:black, fxaa=false, linewidth=1, 
+            overdraw=false, ssao=false
     )
 
     
@@ -147,6 +143,7 @@ function visualize_tangent_vector(ax, p::Vector, v::Vector;
         linewidth=0.025,    
         color=:black,
         normalize=false,
+        arrowsize=Vec3f0(0.05, 0.05, 0.05),
     )
 
     v = normalize ? v ./ norm(v) : v
@@ -155,11 +152,11 @@ function visualize_tangent_vector(ax, p::Vector, v::Vector;
         collect2vecs(p)...,
         collect2vecs(v)...,
         shading=false,
-        arrowsize=[.1, .1, .1],
         lengthscale=lengthscale,
         linewidth=linewidth,
         linecolor=color,
         arrowcolor=color,
+        arrowsize=arrowsize,
     )
 end
 
@@ -168,5 +165,5 @@ end
 function visualize_tangent_vectorfield(ax, P::Vector, V::Vector; 
         kwargs...
     )
-    visualize_tangent_vector.(ax, P, V)
+    visualize_tangent_vector.(ax, P, V; kwargs...)
 end

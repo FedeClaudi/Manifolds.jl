@@ -50,8 +50,8 @@ module Manifolds
 
     Apply a function `f` to each point `x` sampled from a manifold `m`.
     """
-    function apply(m::DomainManifold, f::Function, args...)
-        M = sample(m)
+    function apply(m::DomainManifold, f::Function, args...; n=48)
+        M = sample(m; n=n)
         [f(args..., p) for p in M]
     end
     

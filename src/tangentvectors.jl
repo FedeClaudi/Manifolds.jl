@@ -1,4 +1,5 @@
 module TangentVectors
+
     import DifferentialGeometry: flatten, nargs
     import ..Manifolds: DomainManifold, sample
 
@@ -17,45 +18,49 @@ module TangentVectors
 
 
     """
-        A vector field of tangent vectors on a manifold
+        A vector field of tangent vectors on a manifold `m`.
+        The `TangentVector` v ∈ TₚM is given by ψ(p).
     """
     struct TangentVectorField
-        vecs::Vector{TangentVector}
+        m::DomainManifold
+        ψ::Function
+
+        """
+            TangentVectorField(m::DomainManifold, ψ::Function)
+
+        Construct a tangent vector field out of a function ψ that returns
+        a vector of α weights for each p ∈ M.
+        """
+        function TangentVectorField(m::DomainManifold, ψ::Function)
+            @assert nargs(ψ)==1 "Vector field function should accept a single ::Vector argument"
+
+            x = Base.return_types(ψ, (Vector))[1]
+            @assert x == Vector "Vector field function should return a vector, not $(typeof(x))"
+
+            return new(
+                m, 
+                p -> TangentVector(p, ψ(p))
+            )
+        end
     end
 
-    Base.string(tf::TangentVectorField) = "Tangent Vector field ($(length(tf.vecs)) vectors)"
+    Base.string(tf::TangentVectorField) = "Tangent Vector field, ψ: $(tf.ψ))"
     Base.print(io::IO, tf::TangentVectorField) = print(io, string(tf))
     Base.show(io::IO, ::MIME"text/plain", tf::TangentVectorField) = print(io, string(tf))
+
+
+
+
 
     """
         TangentVectorField(m::DomainManifold, α::Vector)
 
     Construct a constant vector field were all vectors have the 
-    same weights α. `P` represent a vector of manifold points.
+    same weights α. 
     """
-    function TangentVectorField(P::Vector{Vector}, α::Vector)
-        A = repeat([α], length(P))
+    TangentVectorField(m::DomainManifold, α::Vector) = TangentVectorField(
+        m,    
+        p -> TangentVector(p, α)
+    )
 
-        return TangentVectorField(
-            [TangentVector(p, a) for (p,a) in zip(P, A)]
-        )
-    end
-
-
-    """
-        TangentVectorField(m::DomainManifold, f::Function)
-
-    Construct a tangent vector field out of a function that returns
-    a vector of α weights for each p ∈ M.
-    """
-    function TangentVectorField(P::Vector{Vector}, f::Function)
-        @assert nargs(f)==1 "Vector field function should accept a single ::Vector argument"
-
-        x = f(P[1])
-        @assert x isa Vector "Vector field function should return a vector, not $(typeof(x))"
-
-        TangentVectorField(
-            [TangentVector(p, a) for (p,a) in zip(P, f.(P))]
-        )
-    end
 end
